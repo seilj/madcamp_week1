@@ -17,6 +17,25 @@ class Fragment2: Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = Fragment2Binding.inflate(inflater, container, false)
+        val img = arrayOf(
+            R.drawable.ic_home_black_24dp,
+            R.drawable.ic_home_black_24dp,
+            R.drawable.ic_home_black_24dp,
+            R.drawable.ic_home_black_24dp,
+            R.drawable.ic_home_black_24dp,
+            R.drawable.ic_home_black_24dp,
+        )
+        val txt = arrayOf(
+            "txt1",
+            "txt2",
+            "txt3",
+            "txt4",
+            "txt5",
+            "txt6"
+        )
+
+        val gridviewAdapter = GridViewAdapter(requireContext(), img, txt)
+        binding.gridview.adapter = gridviewAdapter
         return binding.root
     }
 }
