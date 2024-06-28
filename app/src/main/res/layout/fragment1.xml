@@ -4,12 +4,11 @@
     android:layout_height="match_parent"
     android:background="@color/teal_200">
 
-    <TextView
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="1번"
-        android:textColor="@color/black"
-        android:textSize="50dp" />
+        android:layout_height="620dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginBottom="80dp" />
 
 </FrameLayout>
