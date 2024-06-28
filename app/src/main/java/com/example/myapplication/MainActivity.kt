@@ -41,7 +41,11 @@ class MainActivity : AppCompatActivity() {
         iconList.add(ContextCompat.getDrawable(this, R.drawable.ic_launcher_foreground))
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = "${position}번"
+            tab.text = when(position){
+                0 -> "학생목록"
+                1 -> "필기노트"
+                else -> "과외비계산기"
+            }
             tab.icon = iconList[position]
         }.attach()
     }
