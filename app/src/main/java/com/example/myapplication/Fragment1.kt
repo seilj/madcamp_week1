@@ -43,6 +43,10 @@ class CustomAdapter(val peopleList: ArrayList<PeopleData>) : RecyclerView.Adapte
 
 class Fragment1: Fragment() {
     private lateinit var binding: Fragment1Binding
+    private lateinit var peopleListAdapter: CustomAdapter
+    val peopleList = ArrayList<PeopleData>()
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -51,7 +55,6 @@ class Fragment1: Fragment() {
     ): View {
         binding = Fragment1Binding.inflate(inflater, container, false)
 
-        val peopleList = ArrayList<PeopleData>()
 
         val assetManager = resources.assets
         val inputStream = assetManager.open("PeopleData.json")
@@ -65,6 +68,24 @@ class Fragment1: Fragment() {
         binding.rv.adapter = CustomAdapter(peopleList)
         binding.rv.layoutManager = LinearLayoutManager(requireContext())
 
+        setupRecyclerView()
+
+        binding.studentAddition.setOnClickListener {
+            // 새로운 데이터 추가
+            val newPerson = PeopleData("New Person", "123-456-7890")
+            addPerson(newPerson)
+        }
+
         return binding.root
+    }
+    private fun setupRecyclerView() {
+        peopleListAdapter = CustomAdapter(peopleList)
+        binding.rv.adapter = peopleListAdapter
+        binding.rv.layoutManager = LinearLayoutManager(context)
+    }
+
+    private fun addPerson(person: PeopleData) {
+        peopleList.add(person)
+        peopleListAdapter.notifyItemInserted(peopleList.size - 1)
     }
 }

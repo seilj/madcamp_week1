@@ -4,11 +4,21 @@
     android:layout_height="match_parent"
     android:background="@color/teal_200">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv"
-        android:layout_width="match_parent"
-        android:layout_height="620dp"
-        android:layout_marginTop="50dp"
-        android:layout_marginBottom="80dp" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv"
+            android:layout_width="match_parent"
+            android:layout_height="620dp"
+            android:layout_marginBottom="80dp"
+            android:paddingBottom="80dp" />
+
+        <Button
+            android:id="@+id/studentAddition"
+            android:layout_width="39dp"
+            android:layout_height="47dp"
+            android:layout_gravity="right|bottom"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="20dp"
+            android:text="+"
+            android:textSize="16sp" />
 
 </FrameLayout>
