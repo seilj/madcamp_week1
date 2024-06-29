@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,9 +13,10 @@ import com.example.myapplication.databinding.Fragment1Binding
 import com.example.myapplication.databinding.ItemRecyclerviewBinding
 import com.google.gson.Gson
 import android.util.Log
+import android.widget.EditText
 
 
-data class PeopleData(val name: String, val phoneNum:String)
+data class PeopleData(val name: String,val age : Int,  val school:String,  val subject : String, val phoneNum:String)
 
 class CustomAdapter(val peopleList: ArrayList<PeopleData>) : RecyclerView.Adapter<CustomAdapter.Holder>() {
     //profileList의 Size를 return하여 몇 명의 data가 존재하는지 확인
@@ -31,12 +33,18 @@ class CustomAdapter(val peopleList: ArrayList<PeopleData>) : RecyclerView.Adapte
     //profileList에서 value를 꺼내고 각 View에 설정해준다.
     override fun onBindViewHolder(holder: CustomAdapter.Holder, position: Int) {
         holder.name.text = peopleList[position].name
-        holder.phonenum.text = peopleList[position].phoneNum
+        holder.age.text = "나이 : " + peopleList[position].age.toString()
+        holder.school.text = "학교 : " + peopleList[position].school
+        holder.subject.text = "과목 : " + peopleList[position].subject
+        holder.phonenum.text = "전화번호 : " + peopleList[position].phoneNum
 
     }
     //binding 객체를 통해 각 View 요소에 접근하게 한다
     inner class Holder(val binding: ItemRecyclerviewBinding) : RecyclerView.ViewHolder(binding.root) {
         val name = binding.rvName
+        val age = binding.rvAge
+        val school = binding.rvSchool
+        val subject = binding.rvSubject
         val phonenum = binding.rvPhonenum
     }
 }
@@ -61,7 +69,6 @@ class Fragment1: Fragment() {
         val jsonString = inputStream.bufferedReader().use { it.readText() }
         val gson = Gson()
         val peopleArray: Array<PeopleData> = gson.fromJson(jsonString, Array<PeopleData>::class.java)
-        Log.d("Fragment1", "Loaded People Data: ${peopleList.joinToString { it.phoneNum }}")
 
         peopleList.addAll(peopleArray)
 
@@ -72,8 +79,7 @@ class Fragment1: Fragment() {
 
         binding.studentAddition.setOnClickListener {
             // 새로운 데이터 추가
-            val newPerson = PeopleData("New Person", "123-456-7890")
-            addPerson(newPerson)
+            showAddPersonDialog()
         }
 
         return binding.root
@@ -87,5 +93,43 @@ class Fragment1: Fragment() {
     private fun addPerson(person: PeopleData) {
         peopleList.add(person)
         peopleListAdapter.notifyItemInserted(peopleList.size - 1)
+    }
+
+    private fun showAddPersonDialog() {
+        //view라는 변수에 dialog_add_person.xml 파일을 담는 과정
+        //layoutInflater를 통해 xml을 앱에서 사용할 수 있는 뷰 객체로 변환
+        val inflater = requireActivity().layoutInflater
+        val view = inflater.inflate(R.layout.dialog_add_person, null)
+
+        //xml 파일에 있는 요소들을 각 요소의 id를 통해 접근한다
+        val nameInput = view.findViewById<EditText>(R.id.edit_name)
+        val ageInput = view.findViewById<EditText>(R.id.edit_age)
+        val schoolInput = view.findViewById<EditText>(R.id.edit_school)
+        val subjectInput = view.findViewById<EditText>(R.id.edit_subject)
+        val phoneNumInput = view.findViewById<EditText>(R.id.edit_phoneNum)
+
+        AlertDialog .Builder(requireContext())
+            .setTitle("Add New Person")
+            .setView(view)
+            //데이터를 넘겨주는 setPositiveButton에 대한 코드
+            //데이터를 넘겨주지 않는 setNegativeButton에 대한 코드
+            .setPositiveButton("Add") { dialog, _ ->
+                //xml 파일의 edittext에 담긴 text들을 각 변수의 자료형에 맞게 변환하여 저장후
+                val name = nameInput.text.toString()
+                val age = ageInput.text.toString().toInt()
+                val school = schoolInput.text.toString()
+                val subject = subjectInput.text.toString()
+                val phoneNum = phoneNumInput.text.toString()
+                //새로운 클래스로 선언하여 arr에 추가
+                val newPerson = PeopleData(name, age, school, subject, phoneNum)
+                addPerson(newPerson)
+                //dialog 닫기
+                dialog.dismiss()
+            }
+                //cancel누르면 닫는 로직
+            .setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
+                //위에 있는걸 creat하고 show해준다
+            .create()
+            .show()
     }
 }

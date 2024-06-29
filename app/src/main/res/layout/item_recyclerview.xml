@@ -1,37 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="100dp"
+    android:layout_height="180dp"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_width="412dp"
+        android:layout_height="160dp"
+        android:layout_marginTop="16dp"
         android:background="#85673AB7"
-        android:orientation="horizontal"
-        app:layout_constraintTop_toTopOf="parent"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:id="@+id/rv_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_gravity="left|top"
             android:layout_marginStart="30dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
             android:background="#7700BCD4"
             android:text="name"
-            android:textSize="32sp" />
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/rv_age"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="30dp"
+            android:background="#7700BCD4"
+            android:text="age"
+            android:layout_marginBottom="6dp"
+            android:textColor="@color/black"/>
+
+        <TextView
+            android:id="@+id/rv_school"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="30dp"
+            android:background="#7700BCD4"
+            android:layout_marginBottom="6dp"
+            android:textColor="@color/black"
+            android:text="school" />
+
+        <TextView
+            android:id="@+id/rv_subject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="30dp"
+            android:background="#7700BCD4"
+            android:text="subject"
+            android:textColor="@color/black"
+            android:layout_marginBottom="6dp"/>
 
         <TextView
             android:id="@+id/rv_phonenum"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginStart="18dp"
+            android:layout_marginStart="30dp"
             android:background="#7700BCD4"
-            android:text="phonenum"
-            android:textSize="32sp" />
+            android:textColor="@color/black"
+            android:text="phonenum"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
