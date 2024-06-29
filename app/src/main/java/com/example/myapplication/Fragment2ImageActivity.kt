@@ -1,29 +1,33 @@
 package com.example.myapplication
 
-import android.app.ActivityOptions
-import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ImageView
+import androidx.appcompat.app.AppCompatActivity
+import com.example.myapplication.databinding.FullImageBinding
 
 class Fragment2ImageActivity : AppCompatActivity() {
+    private lateinit var binding: FullImageBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.full_image)
+        binding = FullImageBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        val img = when(intent.getIntExtra("pos", 0)) {
-            0 -> R.drawable.ic_dashboard_black_24dp
-            1 -> R.drawable.ic_dashboard_black_24dp
-            2 -> R.drawable.ic_dashboard_black_24dp
-            3 -> R.drawable.ic_dashboard_black_24dp
-            4 -> R.drawable.ic_dashboard_black_24dp
-            else -> R.drawable.ic_dashboard_black_24dp
-        }
-        val imageView = findViewById<ImageView>(R.id.image_full)
-        imageView.setImageResource(img)
+        val pos = intent.getIntExtra("pos", 0)
+        val imgResId = getImageResource(pos)
 
-        imageView.setOnClickListener {
-            supportFinishAfterTransition()
-        }
+        binding.imageFull.setImageResource(imgResId)
+    }
+
+    private fun getImageResource(pos: Int): Int {
+        val img = arrayOf(
+            R.drawable.ic_home_black_24dp,
+            R.drawable.ic_home_black_24dp,
+            R.drawable.ic_home_black_24dp,
+            R.drawable.ic_home_black_24dp,
+            R.drawable.ic_home_black_24dp,
+            R.drawable.ic_home_black_24dp,
+        )
+        return img[pos]
     }
 }
