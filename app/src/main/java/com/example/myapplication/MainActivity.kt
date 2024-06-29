@@ -50,6 +50,7 @@ class MainActivity : AppCompatActivity() {
             tab.icon = iconList[position]
         }.attach()
     }
+    //json 파일에 접근해서 값 저장
     private fun loadPeopleData() {
         val json = assets.open("PeopleData.json").bufferedReader().use { it.readText() }
         val gson = Gson()
