@@ -44,4 +44,25 @@
         android:layout_marginBottom="10dp"
         android:height="50dp"
         android:hint="Phone Number" />
+    <EditText
+        android:id="@+id/edit_hourlyWage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:height="50dp"
+        android:hint="Hourly Wage" />
+    <EditText
+        android:id="@+id/edit_week"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:height="50dp"
+        android:hint="Week" />
+    <EditText
+        android:id="@+id/edit_hourPerNumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:height="50dp"
+        android:hint="Hour Per Number" />
 </LinearLayout>

@@ -15,10 +15,7 @@ import com.google.gson.Gson
 import android.util.Log
 import android.widget.EditText
 
-
-data class PeopleData(val name: String,val age : Int,  val school:String,  val subject : String, val phoneNum:String)
-
-class CustomAdapter(val peopleList: ArrayList<PeopleData>) : RecyclerView.Adapter<CustomAdapter.Holder>() {
+class CustomAdapter(val peopleList: ArrayList<PeopleData>,private val onItemLongClicked : (Int)->Unit) : RecyclerView.Adapter<CustomAdapter.Holder>() {
     //profileList의 Size를 return하여 몇 명의 data가 존재하는지 확인
     override fun getItemCount(): Int {
         return peopleList.size
@@ -32,29 +29,28 @@ class CustomAdapter(val peopleList: ArrayList<PeopleData>) : RecyclerView.Adapte
     //RecyclerView에서 각 value를 Binding 할 때 호출되는 함수로 position 매개변수를 통해
     //profileList에서 value를 꺼내고 각 View에 설정해준다.
     override fun onBindViewHolder(holder: CustomAdapter.Holder, position: Int) {
-        holder.name.text = peopleList[position].name
-        holder.age.text = "나이 : " + peopleList[position].age.toString()
-        holder.school.text = "학교 : " + peopleList[position].school
-        holder.subject.text = "과목 : " + peopleList[position].subject
-        holder.phonenum.text = "전화번호 : " + peopleList[position].phoneNum
-
+        val item = peopleList[position]
+        holder.bind(item)
+        holder.itemView.setOnLongClickListener {
+            onItemLongClicked(position)
+            true
+        }
     }
     //binding 객체를 통해 각 View 요소에 접근하게 한다
     inner class Holder(val binding: ItemRecyclerviewBinding) : RecyclerView.ViewHolder(binding.root) {
-        val name = binding.rvName
-        val age = binding.rvAge
-        val school = binding.rvSchool
-        val subject = binding.rvSubject
-        val phonenum = binding.rvPhonenum
+        fun bind(item: PeopleData){
+            binding.rvName.text = item.name
+            binding.rvAge.text = "나이 : ${item.age}"
+            binding.rvSchool.text = "학교 : ${item.school}"
+            binding.rvSubject.text = "과목 : ${item.subject}"
+            binding.rvPhonenum.text = "전화번호 : ${item.phoneNum}"
+        }
     }
 }
 
 class Fragment1: Fragment() {
     private lateinit var binding: Fragment1Binding
     private lateinit var peopleListAdapter: CustomAdapter
-    val peopleList = ArrayList<PeopleData>()
-
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -62,39 +58,43 @@ class Fragment1: Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = Fragment1Binding.inflate(inflater, container, false)
-
-
-        val assetManager = resources.assets
-        val inputStream = assetManager.open("PeopleData.json")
-        val jsonString = inputStream.bufferedReader().use { it.readText() }
-        val gson = Gson()
-        val peopleArray: Array<PeopleData> = gson.fromJson(jsonString, Array<PeopleData>::class.java)
-
-        peopleList.addAll(peopleArray)
-
-        binding.rv.adapter = CustomAdapter(peopleList)
-        binding.rv.layoutManager = LinearLayoutManager(requireContext())
-
         setupRecyclerView()
-
         binding.studentAddition.setOnClickListener {
             // 새로운 데이터 추가
             showAddPersonDialog()
         }
-
         return binding.root
     }
     private fun setupRecyclerView() {
-        peopleListAdapter = CustomAdapter(peopleList)
+        val peopleList = (activity as MainActivity).getPeopleList()
+        peopleListAdapter = CustomAdapter(peopleList) { position ->
+            showDeleteDialog(position)
+        }
         binding.rv.adapter = peopleListAdapter
         binding.rv.layoutManager = LinearLayoutManager(context)
     }
-
+    private fun showDeleteDialog(position: Int) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Delete Entry")
+            .setMessage("Are you sure you want to delete this entry?")
+            .setPositiveButton("OK") { dialog, _ ->
+                deleteItem(position)
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+    private fun deleteItem(position: Int) {
+        val peopleList = (activity as MainActivity).getPeopleList()
+        peopleList.removeAt(position)
+        binding.rv.adapter?.notifyItemRemoved(position)
+    }
     private fun addPerson(person: PeopleData) {
+        val peopleList = (activity as MainActivity).getPeopleList()
         peopleList.add(person)
         peopleListAdapter.notifyItemInserted(peopleList.size - 1)
-    }
 
+    }
     private fun showAddPersonDialog() {
         //view라는 변수에 dialog_add_person.xml 파일을 담는 과정
         //layoutInflater를 통해 xml을 앱에서 사용할 수 있는 뷰 객체로 변환
@@ -107,6 +107,9 @@ class Fragment1: Fragment() {
         val schoolInput = view.findViewById<EditText>(R.id.edit_school)
         val subjectInput = view.findViewById<EditText>(R.id.edit_subject)
         val phoneNumInput = view.findViewById<EditText>(R.id.edit_phoneNum)
+        val hourlyWageInput = view.findViewById<EditText>(R.id.edit_hourlyWage)
+        val weekInput = view.findViewById<EditText>(R.id.edit_week)
+        val hourPerNumberInput = view.findViewById<EditText>(R.id.edit_hourPerNumber)
 
         AlertDialog .Builder(requireContext())
             .setTitle("Add New Person")
@@ -120,8 +123,12 @@ class Fragment1: Fragment() {
                 val school = schoolInput.text.toString()
                 val subject = subjectInput.text.toString()
                 val phoneNum = phoneNumInput.text.toString()
+                val hourlyWage = hourlyWageInput.text.toString().toDouble()
+                val week = weekInput.text.toString()
+                val hourPerNumber = hourPerNumberInput.text.toString().toDouble()
+
                 //새로운 클래스로 선언하여 arr에 추가
-                val newPerson = PeopleData(name, age, school, subject, phoneNum)
+                val newPerson = PeopleData(name, age, school, subject, phoneNum,hourlyWage, week, hourPerNumber)
                 addPerson(newPerson)
                 //dialog 닫기
                 dialog.dismiss()

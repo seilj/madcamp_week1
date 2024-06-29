@@ -12,9 +12,14 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.google.android.material.tabs.TabLayoutMediator
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+
+data class PeopleData(val name: String,val age : Int,  val school:String,  val subject : String, val phoneNum:String, val hourlyWage : Double, val week : String, val hourPerNumber : Double)
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+    private val peopleList = ArrayList<PeopleData>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,6 +27,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         initView()
+        loadPeopleData()
     }
 
     private fun initView() {
@@ -48,5 +54,15 @@ class MainActivity : AppCompatActivity() {
             }
             tab.icon = iconList[position]
         }.attach()
+    }
+    private fun loadPeopleData() {
+        val json = assets.open("PeopleData.json").bufferedReader().use { it.readText() }
+        val gson = Gson()
+        val listType = object : TypeToken<ArrayList<PeopleData>>() {}.type
+        val data = gson.fromJson<ArrayList<PeopleData>>(json, listType)
+        peopleList.addAll(data)
+    }
+    fun getPeopleList(): ArrayList<PeopleData> {
+        return peopleList
     }
 }
