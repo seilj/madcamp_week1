@@ -1,17 +1,15 @@
 package com.example.myapplication
 
-import android.R
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.Button
 import android.widget.CalendarView
-import android.widget.Spinner
+import android.widget.EditText
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myapplication.databinding.Fragment3Binding
@@ -56,6 +54,52 @@ class Fragment3 : Fragment() {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
+    private fun updateSchedules() {
+        studentsOnSelectedDate = students.filter { it.classDates.contains(selectedDate) }
+        val schedules = studentsOnSelectedDate.map { Schedule(it.name, it.hours) }.toMutableList()
+        val adapter = ScheduleAdapter(schedules, { schedule ->
+            cancelSchedule(schedule)
+        }, {
+            showAddClassDialog()
+        })
+        binding.schedule.adapter = adapter
+        binding.schedule.layoutManager = LinearLayoutManager(requireContext())
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun cancelSchedule(schedule: Schedule) {
+        val student = students.find { it.name == schedule.name }
+        student?.classDates?.remove(selectedDate)
+        updateSchedules()
+        updatePayment()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun showAddClassDialog() {
+        val studentNames = students.map { it.name }.toTypedArray()
+        var selectedStudentIndex = 0
+
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_add_class, null)
+        val hoursInput = dialogView.findViewById<EditText>(R.id.hours_input)
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("보강 추가")
+            .setSingleChoiceItems(studentNames, 0) { _, which ->
+                selectedStudentIndex = which
+            }
+            .setView(dialogView)
+            .setPositiveButton("추가") { _, _ ->
+                val selectedStudent = students[selectedStudentIndex]
+                val hours = hoursInput.text.toString().toDoubleOrNull() ?: return@setPositiveButton
+                selectedStudent.classDates.add(selectedDate!!)
+                updateSchedules()
+                updatePayment()
+            }
+            .setNegativeButton("취소", null)
+            .show()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun listInitialize() {
         for (person in peopleList) {
             val regularClass = mutableListOf<LocalDate>()
@@ -70,25 +114,6 @@ class Fragment3 : Fragment() {
             }
             students.add(Student(person.name, regularClass, person.hourPerNumber, person.hourlyWage))
         }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun updateSchedules() {
-        studentsOnSelectedDate = students.filter { it.classDates.contains(selectedDate) }
-        val schedules = studentsOnSelectedDate.map { Schedule(it.name, it.hours) }.toMutableList()
-        val adapter = ScheduleAdapter(schedules) { schedule ->
-            cancelSchedule(schedule)
-        }
-        binding.schedule.adapter = adapter
-        binding.schedule.layoutManager = LinearLayoutManager(requireContext())
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun cancelSchedule(schedule: Schedule) {
-        val student = students.find { it.name == schedule.name }
-        student?.classDates?.remove(selectedDate)
-        updateSchedules()
-        updatePayment()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
