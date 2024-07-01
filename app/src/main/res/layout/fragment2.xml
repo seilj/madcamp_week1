@@ -8,12 +8,22 @@
 
     <GridView
         android:id="@+id/gridview"
-        android:numColumns="3"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_height="610dp"
+        android:numColumns="3"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        />
+        app:layout_constraintTop_toTopOf="parent"
+        android:paddingBottom="80dp"/>
+
+    <Button
+        android:id="@+id/imageAddition"
+        android:layout_width="39dp"
+        android:layout_height="47dp"
+        android:text="+"
+        android:layout_gravity="right|bottom"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="20dp"
+        android:textSize="16sp"/>
 
 </FrameLayout>
