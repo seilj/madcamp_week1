@@ -13,12 +13,14 @@ import android.widget.Spinner
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myapplication.databinding.Fragment3Binding
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
-data class Student(val name: String,val regularClass: MutableList<LocalDate>, val offDays: MutableList<LocalDate>, val makeupDays: MutableList<Pair<LocalDate, Int>>)
+data class Student(val name: String, val classDates: MutableList<LocalDate>, val hours: Double, val hourlyWage: Double)
+
 class Fragment3 : Fragment() {
     private lateinit var binding: Fragment3Binding
     private val students = mutableListOf<Student>()
@@ -31,10 +33,6 @@ class Fragment3 : Fragment() {
     private var selectedDate: LocalDate? = null
     private var studentsOnSelectedDate: List<Student> = emptyList()
     private lateinit var calendarView: CalendarView
-    private lateinit var spinner: Spinner
-    private lateinit var cancleBtn: Button
-    private lateinit var makeupBtn: Button
-    private lateinit var deleteBtn: Button
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
@@ -44,33 +42,14 @@ class Fragment3 : Fragment() {
     ): View {
         binding = Fragment3Binding.inflate(inflater, container, false)
         calendarView = binding.calendarView
-        spinner = binding.spinner
-        cancleBtn = binding.cancleBtn
-        makeupBtn = binding.makeupBtn
-        deleteBtn = binding.deleteBtn
         totalSalaryTextView = binding.totalSalary
 
         listInitialize()
 
         calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
             selectedDate = LocalDate.of(year, month + 1, dayOfMonth)
-            updateStudentsOnSelectedDate()
+            updateSchedules()
         }
-
-        cancleBtn.setOnClickListener {
-            val selectedStudentName = spinner.selectedItem as? String
-            selectedStudentName?.let { name ->
-                val student = students.find { it.name == name }
-                selectedDate?.let { date ->
-                    student?.let {
-                        it.offDays.add(date)
-                        updateStudentsOnSelectedDate()
-                        updatePayment()
-                    }
-                }
-            }
-        }
-
         updatePayment()
 
         return binding.root
@@ -89,26 +68,27 @@ class Fragment3 : Fragment() {
                 if (person.week == dayOfWeekString)
                     regularClass.add(date)
             }
-            students.add(Student(person.name, regularClass, mutableListOf(), mutableListOf()))
+            students.add(Student(person.name, regularClass, person.hourPerNumber, person.hourlyWage))
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun updateStudentsOnSelectedDate() {
-        selectedDate?.let { date ->
-            studentsOnSelectedDate = students.filter {
-                it.regularClass.contains(date) && !it.offDays.contains(date)
-            }
-            if (studentsOnSelectedDate.isNotEmpty()) {
-                spinner.visibility = View.VISIBLE
-                cancleBtn.visibility = View.VISIBLE
-                val studentNames = studentsOnSelectedDate.map { it.name }
-                spinner.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, studentNames)
-            } else {
-                spinner.visibility = View.GONE
-                cancleBtn.visibility = View.GONE
-            }
+    private fun updateSchedules() {
+        studentsOnSelectedDate = students.filter { it.classDates.contains(selectedDate) }
+        val schedules = studentsOnSelectedDate.map { Schedule(it.name, it.hours) }.toMutableList()
+        val adapter = ScheduleAdapter(schedules) { schedule ->
+            cancelSchedule(schedule)
         }
+        binding.schedule.adapter = adapter
+        binding.schedule.layoutManager = LinearLayoutManager(requireContext())
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun cancelSchedule(schedule: Schedule) {
+        val student = students.find { it.name == schedule.name }
+        student?.classDates?.remove(selectedDate)
+        updateSchedules()
+        updatePayment()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -121,10 +101,9 @@ class Fragment3 : Fragment() {
     private fun calculateMonthlyPayment(): Int {
         var totalPayment: Double = 0.0
         for (student in students) {
-            val person = peopleList.find { it.name == student.name }
-            val hourlyWage = person?.hourlyWage ?: 0.0
-            val hours = person?.hourPerNumber ?: 0.0
-            totalPayment += (student.regularClass.size - student.offDays.size).toDouble() * hours * hourlyWage * 10000
+            val hourlyWage = student.hourlyWage
+            val hours = student.hours
+            totalPayment += student.classDates.size.toDouble() * hours * hourlyWage * 10000
         }
         return totalPayment.toInt()
     }
