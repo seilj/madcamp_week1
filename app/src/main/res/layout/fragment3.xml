@@ -36,6 +36,15 @@
             android:gravity="center"
             android:text="이번 달 과외비는 0원 입니다." />
 
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@+id/cancleBtn"
+            app:layout_constraintEnd_toEndOf="@+id/cancleBtn"
+            app:layout_constraintStart_toStartOf="@+id/cancleBtn"
+            android:visibility="gone"/>
+
         <Button
             android:text="휴강"
             android:layout_width="0dp"

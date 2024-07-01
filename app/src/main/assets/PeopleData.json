@@ -57,7 +57,7 @@
     "subject": "Physics",
     "hourlyWage": 2.2,
     "week": "Monday",
-    "hourPerNumber": 3.2
+    "hourPerNumber": 3.0
   },
   {
     "name": "William Miller",
@@ -67,7 +67,7 @@
     "subject": "Chemistry",
     "hourlyWage": 2.8,
     "week": "Tuesday",
-    "hourPerNumber": 4.8
+    "hourPerNumber": 5
   },
   {
     "name": "Olivia Wilson",
@@ -77,7 +77,7 @@
     "subject": "English Literature",
     "hourlyWage": 3.3,
     "week": "Wednesday",
-    "hourPerNumber": 2.3
+    "hourPerNumber": 2.5
   },
   {
     "name": "James Moore",
