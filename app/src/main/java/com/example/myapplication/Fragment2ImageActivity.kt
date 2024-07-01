@@ -20,5 +20,4 @@ class Fragment2ImageActivity : AppCompatActivity() {
             .load(ImageResources.images[pos])
             .into(binding.imageFull)
     }
-
 }

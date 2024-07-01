@@ -33,7 +33,7 @@ class GridViewAdapter(
                 .load(imageUris[position])
                 .into(imageView)
         }
-
+        notifyDataSetChanged()
         return view
     }
 

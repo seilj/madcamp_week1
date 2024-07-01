@@ -38,12 +38,13 @@ class Fragment2: Fragment() {
         binding = Fragment2Binding.inflate(inflater, container, false)
         //사진들을 화면에 보여주기 위한 gridviewadapter이다
         val gridviewAdapter = GridViewAdapter(requireContext(), ImageResources.images, ImageResources.texts)
+
         //어뎁터 고정
         binding.gridview.adapter = gridviewAdapter
         //고정한 +버튼 눌렷을 사
         binding.imageAddition.setOnClickListener {
             // 새로운 데이터 추가
-            showAddImageDialog()
+            showAddImageDialog(gridviewAdapter)
         }
         //각 그리드뷰가 터치되면?
         binding.gridview.onItemClickListener = AdapterView.OnItemClickListener { _, view, position, _ ->
@@ -60,7 +61,7 @@ class Fragment2: Fragment() {
         startActivity(intent, opt.toBundle())
     }
     //불러올 이미지를 선택하고, text를 지정해줘 앱에 보이게하는 dialog
-    private fun showAddImageDialog() {
+    private fun showAddImageDialog(gridViewAdapter: GridViewAdapter) {
         //view라는 변수에 dialog_add_image.xml 파일을 담는 과정
         //layoutInflater를 통해 xml을 앱에서 사용할 수 있는 뷰 객체로 변환
         val inflater = requireActivity().layoutInflater
@@ -85,8 +86,12 @@ class Fragment2: Fragment() {
                 //edittext에 있는 글자를 변환하여 저장하는 역할을 한다.
                 //둘 중 하나라도 null이면 toast 메시지가 올라가며 업로드가 안되고 창이 닫힌다
                 val text = textInput.text.toString()
+
                 if (selectedImageUri != null && text.isNotEmpty()) {
                     ImageResources.addImage(selectedImageUri!!,text)
+                    gridViewAdapter.notifyDataSetChanged()
+
+
 
                 } else {
                     Toast.makeText(requireContext(), "Image or text is missing",Toast.LENGTH_LONG).show()
