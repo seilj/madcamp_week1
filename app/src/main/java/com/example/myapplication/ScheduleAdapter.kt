@@ -7,7 +7,7 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class ScheduleAdapter(val items: MutableList<Schedule>, val onCancelClick: (Schedule) -> Unit, val onAddClassClick: () -> Unit): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class ScheduleAdapter(val items: List<Schedule>, val onCancelClick: (Schedule) -> Unit, val onAddClassClick: () -> Unit): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val TYPE_ITEM = 0
     private val TYPE_BUTTON = 1
