@@ -16,14 +16,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
+    <ImageButton
         android:id="@+id/imageAddition"
-        android:layout_width="39dp"
-        android:layout_height="47dp"
-        android:text="+"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_gravity="right|bottom"
         android:layout_marginRight="20dp"
         android:layout_marginBottom="20dp"
-        android:textSize="16sp"/>
+        android:background="@drawable/circle_background"
+        android:scaleType="centerInside"
+        android:padding="10dp"
+        android:alpha="1.0"
+        android:src="@drawable/image" />
 
 </FrameLayout>

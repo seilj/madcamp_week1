@@ -9,15 +9,20 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:paddingBottom="20dp" />
-
-        <Button
+        <ImageButton
             android:id="@+id/studentAddition"
-            android:layout_width="39dp"
-            android:layout_height="47dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_gravity="right|bottom"
             android:layout_marginRight="20dp"
             android:layout_marginBottom="20dp"
-            android:text="+"
-            android:textSize="16sp" />
+            android:background="@drawable/circle_background"
+            android:scaleType="centerInside"
+            android:padding="10dp"
+            android:alpha="1.0"
+            android:src="@drawable/edittext" />
+
+
+
 
 </FrameLayout>

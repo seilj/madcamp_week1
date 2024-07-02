@@ -18,7 +18,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
             android:hint="Name"
-            android:textSize="20sp" />
+            android:textSize="20sp"
+            android:fontFamily="@font/godom"/>
 
         <EditText
             android:id="@+id/edit_age"
@@ -26,7 +27,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
             android:hint="Age"
-            android:textSize="20sp" />
+            android:textSize="20sp"
+            android:fontFamily="@font/godom"/>
 
         <EditText
             android:id="@+id/edit_school"
@@ -34,7 +36,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
             android:hint="School"
-            android:textSize="20sp" />
+            android:textSize="20sp"
+            android:fontFamily="@font/godom"/>
 
         <EditText
             android:id="@+id/edit_subject"
@@ -42,7 +45,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
             android:hint="Subject"
-            android:textSize="20sp" />
+            android:textSize="20sp"
+            android:fontFamily="@font/godom"/>
 
         <EditText
             android:id="@+id/edit_phoneNum"
@@ -50,7 +54,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
             android:hint="Phone Number"
-            android:textSize="20sp" />
+            android:textSize="20sp"
+            android:fontFamily="@font/godom"/>
 
         <EditText
             android:id="@+id/edit_hourlyWage"
@@ -58,7 +63,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
             android:hint="Hourly Wage"
-            android:textSize="20sp" />
+            android:textSize="20sp"
+            android:fontFamily="@font/godom"/>
 
         <EditText
             android:id="@+id/edit_week"
@@ -66,7 +72,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
             android:hint="Week"
-            android:textSize="20sp" />
+            android:textSize="20sp"
+            android:fontFamily="@font/godom"/>
 
         <EditText
             android:id="@+id/edit_hourPerNumber"
@@ -74,7 +81,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
             android:hint="Hour Per Number"
-            android:textSize="20sp" />
+            android:textSize="20sp"
+            android:fontFamily="@font/godom"/>
 
     </LinearLayout>
 </ScrollView>

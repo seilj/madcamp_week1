@@ -25,6 +25,8 @@
             android:textStyle="bold"
             android:textSize="20sp"
             android:layout_margin="5dp"
+            android:fontFamily="@font/godom"
+
             android:text="이름" />
 
         <TextView
@@ -36,6 +38,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             android:textSize="16sp"
             android:layout_marginLeft="15dp"
+            android:fontFamily="@font/godom"
+
             android:text="시간" />
 
         <Button
@@ -47,7 +51,9 @@
             app:layout_constraintBottom_toBottomOf="parent"
             android:layout_margin="5dp"
             android:textSize="16sp"
-            android:text="휴강" />
+            android:text="휴강"
+            android:fontFamily="@font/godom"
+            />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

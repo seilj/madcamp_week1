@@ -3,6 +3,7 @@ package com.example.myapplication
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -26,8 +27,19 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setStatusBarColor()
+
         listDataViewModel.listInitialize(this)
         initView()
+    }
+    private fun setStatusBarColor() {
+        // 상태창 색상을 원하는 색상으로 변경
+        window.statusBarColor = ContextCompat.getColor(this, R.color.green)
+
+        // 상태창 텍스트 색상 변경 (다크 모드에서는 밝은 텍스트를, 라이트 모드에서는 어두운 텍스트를 표시)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+        }
     }
 
     private fun initView() {
@@ -42,15 +54,15 @@ class MainActivity : AppCompatActivity() {
         viewPager.adapter = ViewPagerAdapter(fragmentList, this)
 
         val iconList = ArrayList<Drawable?>()
-        iconList.add(ContextCompat.getDrawable(this, R.drawable.ic_launcher_foreground))
-        iconList.add(ContextCompat.getDrawable(this, R.drawable.ic_launcher_foreground))
-        iconList.add(ContextCompat.getDrawable(this, R.drawable.ic_launcher_foreground))
+        iconList.add(ContextCompat.getDrawable(this, R.drawable.list))
+        iconList.add(ContextCompat.getDrawable(this, R.drawable.imagegallery))
+        iconList.add(ContextCompat.getDrawable(this, R.drawable.calendar))
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = when(position){
                 0 -> "학생목록"
                 1 -> "필기노트"
-                else -> "과외비계산기"
+                else -> "일정관리"
             }
             tab.icon = iconList[position]
         }.attach()

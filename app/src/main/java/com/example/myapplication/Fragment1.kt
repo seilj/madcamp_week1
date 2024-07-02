@@ -4,9 +4,11 @@ import android.app.AlertDialog
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
@@ -117,6 +119,14 @@ class Fragment1 : Fragment() {
         val weekInput = view.findViewById<EditText>(R.id.edit_week)
         val hourPerNumberInput = view.findViewById<EditText>(R.id.edit_hourPerNumber)
 
+        setupEditTextFocusChange(nameInput, ageInput)
+        setupEditTextFocusChange(ageInput, schoolInput)
+        setupEditTextFocusChange(schoolInput, subjectInput)
+        setupEditTextFocusChange(subjectInput, phoneNumInput)
+        setupEditTextFocusChange(phoneNumInput, hourlyWageInput)
+        setupEditTextFocusChange(hourlyWageInput, weekInput)
+        setupEditTextFocusChange(weekInput, hourPerNumberInput)
+
         AlertDialog.Builder(requireContext())
             .setTitle("Add New Person")
             .setView(view)
@@ -158,5 +168,15 @@ class Fragment1 : Fragment() {
             .setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
             .create()
             .show()
+    }
+    private fun setupEditTextFocusChange(currentEditText: EditText, nextEditText: EditText) {
+        currentEditText.setOnEditorActionListener { _, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_NEXT || event?.keyCode == KeyEvent.KEYCODE_ENTER) {
+                nextEditText.requestFocus()
+                true
+            } else {
+                false
+            }
+        }
     }
 }
