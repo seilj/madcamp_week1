@@ -20,7 +20,7 @@ import androidx.fragment.app.viewModels
 import com.google.gson.reflect.TypeToken
 import java.io.File
 
-class CustomAdapter(val peopleList: ArrayList<PeopleData>,private val onItemLongClicked : (Int)->Unit) : RecyclerView.Adapter<CustomAdapter.Holder>() {
+class CustomAdapter(val peopleList: MutableList<PeopleData>,private val onItemLongClicked : (Int)->Unit) : RecyclerView.Adapter<CustomAdapter.Holder>() {
     //peopleList의 Size를 return하여 몇 명의 data가 존재하는지 확인
 
     override fun getItemCount(): Int {
@@ -53,6 +53,7 @@ class CustomAdapter(val peopleList: ArrayList<PeopleData>,private val onItemLong
             binding.rvPhonenum.text = "전화번호 : ${item.phoneNum}"
         }
     }
+
 }
 
 class Fragment1: Fragment() {
@@ -77,7 +78,7 @@ class Fragment1: Fragment() {
     }
     //recyclerview 관련 함수
     private fun setupRecyclerView() {
-        val peopleList = viewModel.getPeopleList()
+        val peopleList = viewModel.getPeopleList() ?: mutableListOf()
         //꾹 눌리는 거 감지해서 삭제(넘겨준 position 사용)
         peopleListAdapter = CustomAdapter(peopleList) { position ->
             showDeleteDialog(position)
@@ -92,17 +93,16 @@ class Fragment1: Fragment() {
             .setTitle("Delete Entry")
             .setMessage("Are you sure you want to delete this entry?")
             .setPositiveButton("OK") { dialog, _ ->
-                deleteItem(position)
+                val peopleList = viewModel.getPeopleList()
+                val person = peopleList?.get(position)
+                if (person != null) {
+                    viewModel.deleteStudent(requireContext(), person)
+                    peopleListAdapter.notifyItemRemoved(position)
+                }
                 dialog.dismiss()
             }
             .setNegativeButton("Cancel", null)
             .show()
-    }
-    private fun deleteItem(position: Int) {
-        val peopleList = (activity as MainActivity).getPeopleList()
-        peopleList.removeAt(position)
-        (activity as MainActivity).writeJsonToFile(requireContext(),"PeopleData.json",peopleList)
-        peopleListAdapter.notifyItemRemoved(position)
     }
     //요소 add 관련 함수
     private fun showAddPersonDialog() {
@@ -162,9 +162,8 @@ class Fragment1: Fragment() {
 
                 //새로운 클래스로 선언하여 arr에 추가
                 val newPerson = PeopleData(name, age, school, subject, phoneNum,hourlyWage, week, hourPerNumber)
-                addPerson(newPerson)
-                (activity as MainActivity).addStudent(requireContext(), "PeopleData.json",newPerson)
-                //dialog 닫기
+                viewModel.addStudent(requireContext(), newPerson)
+                peopleListAdapter.notifyItemInserted(viewModel.getPeopleList()?.size ?: 0)
                 dialog.dismiss()
             }
                 //cancel누르면 닫는 로직
@@ -172,11 +171,5 @@ class Fragment1: Fragment() {
                 //위에 있는걸 creat하고 show해준다
             .create()
             .show()
-    }
-    private fun addPerson(person: PeopleData) {
-        val peopleList = (activity as MainActivity).getPeopleList()
-        peopleList.add(person)
-        peopleListAdapter.notifyItemInserted(peopleList.size - 1)
-
     }
 }

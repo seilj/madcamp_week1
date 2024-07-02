@@ -37,7 +37,7 @@ class ListDataViewModel : ViewModel() {
     }
 
     fun getPeopleList(): MutableList<PeopleData>? {
-        return peopleList.value
+        return peopleList.value?: mutableListOf()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
