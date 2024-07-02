@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.CalendarView
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
@@ -74,6 +75,10 @@ class Fragment3 : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun showAddClassDialog() {
         val studentNames = viewModel.schedules.value?.map { it.name }?.distinct()?.toTypedArray() ?: emptyArray()
+        if(studentNames.isEmpty()) {
+            Toast.makeText(requireContext(), "학생이 존재하지 않습니다.", Toast.LENGTH_SHORT).show()
+            return
+        }
         var selectedStudentIndex = 0
 
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_add_class, null)

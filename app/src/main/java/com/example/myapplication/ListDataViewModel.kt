@@ -2,6 +2,7 @@ package com.example.myapplication
 
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -32,13 +33,13 @@ class ListDataViewModel : ViewModel() {
     @RequiresApi(Build.VERSION_CODES.O)
     fun listInitialize(context: Context) {
         loadPeopleData(context)
-        val studentList = peopleList.value ?: emptyList<PeopleData>()
-        for(student in studentList)
+        val studentList = peopleList.value ?: mutableListOf()
+        for (student in studentList)
             updateStudentSchedule(student)
     }
 
-    fun getPeopleList(): MutableList<PeopleData>? {
-        return peopleList.value?: mutableListOf()
+    fun getPeopleList(): MutableList<PeopleData> {
+        return peopleList.value ?: mutableListOf()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -61,6 +62,11 @@ class ListDataViewModel : ViewModel() {
 
     // JSON 파일에 접근해서 값 저장
     private fun loadPeopleData(context: Context) {
+        // Ensure peopleList.value is initialized
+        if (peopleList.value == null) {
+            peopleList.value = mutableListOf()
+        }
+
         val data = readJsonFromFile(context, "PeopleData.json")
         peopleList.value?.addAll(data)
     }
@@ -74,7 +80,7 @@ class ListDataViewModel : ViewModel() {
             val json = jsonFile.readText()
             val gson = Gson()
             val studentListType = object : TypeToken<List<PeopleData>>() {}.type
-            gson.fromJson(json, studentListType)
+            gson.fromJson(json, studentListType) ?: emptyList()
         } catch (e: IOException) {
             e.printStackTrace()
             emptyList()
@@ -87,8 +93,9 @@ class ListDataViewModel : ViewModel() {
             val gson = Gson()
             val jsonString = gson.toJson(students)
             jsonFile.writeText(jsonString)
+            Log.d("FileWrite", "Successfully wrote JSON to file: $jsonFile")
         } catch (e: IOException) {
-            e.printStackTrace()
+            Log.e("FileWrite", "Error writing JSON to file: $jsonFile", e)
         }
     }
 

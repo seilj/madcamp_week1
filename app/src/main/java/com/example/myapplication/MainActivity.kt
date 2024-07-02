@@ -26,8 +26,8 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        initView()
         listDataViewModel.listInitialize(this)
+        initView()
     }
 
     private fun initView() {
