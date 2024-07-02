@@ -16,11 +16,13 @@ import com.google.gson.Gson
 import android.util.Log
 import android.widget.EditText
 import android.widget.Toast
+import androidx.fragment.app.viewModels
 import com.google.gson.reflect.TypeToken
 import java.io.File
 
 class CustomAdapter(val peopleList: ArrayList<PeopleData>,private val onItemLongClicked : (Int)->Unit) : RecyclerView.Adapter<CustomAdapter.Holder>() {
     //peopleList의 Size를 return하여 몇 명의 data가 존재하는지 확인
+
     override fun getItemCount(): Int {
         return peopleList.size
     }
@@ -56,6 +58,8 @@ class CustomAdapter(val peopleList: ArrayList<PeopleData>,private val onItemLong
 class Fragment1: Fragment() {
     private lateinit var binding: Fragment1Binding
     private lateinit var peopleListAdapter: CustomAdapter
+    private val viewModel: ListDataViewModel by viewModels()
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -73,7 +77,7 @@ class Fragment1: Fragment() {
     }
     //recyclerview 관련 함수
     private fun setupRecyclerView() {
-        val peopleList = (activity as MainActivity).getPeopleList()
+        val peopleList = viewModel.getPeopleList()
         //꾹 눌리는 거 감지해서 삭제(넘겨준 position 사용)
         peopleListAdapter = CustomAdapter(peopleList) { position ->
             showDeleteDialog(position)
@@ -175,6 +179,4 @@ class Fragment1: Fragment() {
         peopleListAdapter.notifyItemInserted(peopleList.size - 1)
 
     }
-
-
 }
