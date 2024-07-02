@@ -124,6 +124,10 @@ class Fragment1: Fragment() {
             //데이터를 넘겨주지 않는 setNegativeButton에 대한 코드
             .setPositiveButton("Add") { dialog, _ ->
                 //xml 파일의 edittext에 담긴 text들을 각 변수의 자료형에 맞게 변환하여 저장후
+                val daysOfWeek: List<String> = listOf(
+                    "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+                )
+
 
                 val name = nameInput.text.toString()
                 var age = ageInput.text.toString().toIntOrNull()
@@ -131,7 +135,7 @@ class Fragment1: Fragment() {
                 val subject = subjectInput.text.toString()
                 val phoneNum = phoneNumInput.text.toString()
                 var hourlyWage = hourlyWageInput.text.toString().toDoubleOrNull()
-                val week = weekInput.text.toString()
+                var week = weekInput.text.toString()
                 var hourPerNumber = hourPerNumberInput.text.toString().toDoubleOrNull()
 
                 //숫자 값들을 아무값이 안담기면 강제 종료되는데 이를 방지하기 위해 미입력시 default value를 설정
@@ -146,6 +150,10 @@ class Fragment1: Fragment() {
                 if (hourPerNumber == null) {
                     hourPerNumber=2.0
                     Toast.makeText(context, "default value 2.0 is added", Toast.LENGTH_SHORT).show()
+                }
+                if (!(week in daysOfWeek)) {
+                    week = "Monday"
+                    Toast.makeText(context, "default value Monday is added, please change the first letter to capital letters ", Toast.LENGTH_SHORT).show()
                 }
 
                 //새로운 클래스로 선언하여 arr에 추가
