@@ -79,6 +79,7 @@ class Fragment1 : Fragment() {
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun setupRecyclerView() {
         val peopleList = listDataViewModel.getPeopleList()
         peopleListAdapter = CustomAdapter(peopleList) { position ->
@@ -88,6 +89,7 @@ class Fragment1 : Fragment() {
         binding.rv.layoutManager = LinearLayoutManager(context)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun showDeleteDialog(position: Int) {
         AlertDialog.Builder(requireContext())
             .setTitle("Delete Entry")
@@ -100,6 +102,7 @@ class Fragment1 : Fragment() {
             .show()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun deleteItem(position: Int) {
         val peopleList = listDataViewModel.getPeopleList()
         val student = peopleList[position]

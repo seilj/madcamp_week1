@@ -79,7 +79,7 @@ class ListDataViewModel : ViewModel() {
         updateStudentSchedule(student)
         // 업데이트된 데이터를 JSON 파일에 씀
         writeJsonToFile(context, "PeopleData.json", updatedList)
-        writeJsonToFile(context, "SchedulesData.json", schedules.value?.map { it.toScheduleData() })
+        writeSchedulesToFile(context)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -92,6 +92,11 @@ class ListDataViewModel : ViewModel() {
         hourlyWage.value = hourlyWage.value?.filterNot { it.first == student.name }?.toMutableList()
         // 업데이트된 데이터를 JSON 파일에 씀
         writeJsonToFile(context, "PeopleData.json", updatedList)
+        writeSchedulesToFile(context)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun writeSchedulesToFile(context: Context) {
         writeJsonToFile(context, "SchedulesData.json", schedules.value?.map { it.toScheduleData() })
     }
 

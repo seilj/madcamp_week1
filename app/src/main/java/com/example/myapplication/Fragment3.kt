@@ -79,7 +79,9 @@ class Fragment3 : Fragment() {
     private fun updateSchedules() {
         val schedules = viewModel.schedules.value?.filter { it.date == selectedDate }
         adapter.updateData(schedules ?: emptyList())
+        viewModel.writeSchedulesToFile(requireContext()) // 스케줄 데이터 저장
     }
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun showAddClassDialog() {
@@ -109,6 +111,7 @@ class Fragment3 : Fragment() {
                 val updatedSchedules = viewModel.schedules.value?.toMutableList() ?: mutableListOf()
                 updatedSchedules.add(newSchedule)
                 viewModel.schedules.value = updatedSchedules
+                viewModel.writeSchedulesToFile(requireContext()) // 스케줄 데이터 저장
                 updatePayment()
             }
             .setNegativeButton("취소", null)
