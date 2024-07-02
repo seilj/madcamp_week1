@@ -61,6 +61,16 @@ class Fragment3 : Fragment() {
             updatePayment()
         }
 
+        // Observe peopleList LiveData
+        viewModel.peopleList.observe(viewLifecycleOwner) {
+            updatePayment()
+        }
+
+        // Observe hourlyWage LiveData
+        viewModel.hourlyWage.observe(viewLifecycleOwner) {
+            updatePayment()
+        }
+
         return binding.root
     }
 
