@@ -25,6 +25,30 @@ data class PeopleData(
     val hourPerNumber: Double
 )
 
+data class Schedule(
+    val name: String, val hours: Double, val date: LocalDate
+){
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun toScheduleData(): ScheduleData{
+        return ScheduleData(
+            name = this.name,
+            hours = this.hours,
+            date = this.date.format(DateTimeFormatter.ISO_DATE) // LocalDate를 String으로 변환
+        )
+    }
+}
+
+data class ScheduleData(
+    val name: String,
+    val hours: Double,
+    val date: String
+){
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun toSchedule(): Schedule{
+        return Schedule(name = this.name, hours = this.hours, date = LocalDate.parse(this.date, DateTimeFormatter.ISO_DATE))
+    }
+}
+
 class ListDataViewModel : ViewModel() {
     val peopleList = MutableLiveData<MutableList<PeopleData>>(mutableListOf())
     val schedules = MutableLiveData<MutableList<Schedule>>(mutableListOf())
@@ -33,9 +57,13 @@ class ListDataViewModel : ViewModel() {
     @RequiresApi(Build.VERSION_CODES.O)
     fun listInitialize(context: Context) {
         loadPeopleData(context)
-        val studentList = peopleList.value ?: mutableListOf()
-        for (student in studentList)
-            updateStudentSchedule(student)
+        loadSchedulesData(context)
+        val students = peopleList.value ?: mutableListOf()
+        val wage = mutableListOf<Pair<String, Double>>()
+        for(student in students){
+            wage.add(Pair(student.name, student.hourlyWage))
+        }
+        hourlyWage.value = wage
     }
 
     fun getPeopleList(): MutableList<PeopleData> {
@@ -51,8 +79,10 @@ class ListDataViewModel : ViewModel() {
         updateStudentSchedule(student)
         // 업데이트된 데이터를 JSON 파일에 씀
         writeJsonToFile(context, "PeopleData.json", updatedList)
+        writeJsonToFile(context, "SchedulesData.json", schedules.value?.map { it.toScheduleData() })
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun deleteStudent(context: Context, student: PeopleData) {
         // 학생 데이터를 삭제
         val updatedList = peopleList.value ?: mutableListOf()
@@ -62,16 +92,23 @@ class ListDataViewModel : ViewModel() {
         hourlyWage.value = hourlyWage.value?.filterNot { it.first == student.name }?.toMutableList()
         // 업데이트된 데이터를 JSON 파일에 씀
         writeJsonToFile(context, "PeopleData.json", updatedList)
+        writeJsonToFile(context, "SchedulesData.json", schedules.value?.map { it.toScheduleData() })
     }
 
 
     // JSON 파일에 접근해서 값 저장
     private fun loadPeopleData(context: Context) {
-        val data = readJsonFromFile(context, "PeopleData.json")
+        val data = readJsonFromFile(context, "PeopleData.json", PeopleData::class.java)
         peopleList.value = data.toMutableList()
     }
 
-    private fun readJsonFromFile(context: Context, fileName: String): List<PeopleData> {
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun loadSchedulesData(context: Context) {
+        val data = readJsonFromFile(context, "SchedulesData.json", ScheduleData::class.java)
+        schedules.value = data.map { it.toSchedule() }.toMutableList()
+    }
+
+    private fun <T> readJsonFromFile(context: Context, fileName: String, clazz: Class<T>): List<T> {
         val jsonFile = File(context.filesDir, fileName)
         if (!jsonFile.exists()) {
             return emptyList()
@@ -79,19 +116,20 @@ class ListDataViewModel : ViewModel() {
         return try {
             val json = jsonFile.readText()
             val gson = Gson()
-            val studentListType = object : TypeToken<List<PeopleData>>() {}.type
-            gson.fromJson(json, studentListType) ?: emptyList()
+            val listType = TypeToken.getParameterized(List::class.java, clazz).type
+            gson.fromJson(json, listType) ?: emptyList()
         } catch (e: IOException) {
             e.printStackTrace()
             emptyList()
         }
     }
 
-    private fun writeJsonToFile(context: Context, fileName: String, students: MutableList<PeopleData>?) {
+    // JSON 파일에 접근해서 값 저장
+    private fun <T> writeJsonToFile(context: Context, fileName: String, data: List<T>?) {
         val jsonFile = File(context.filesDir, fileName)
         try {
             val gson = Gson()
-            val jsonString = gson.toJson(students)
+            val jsonString = gson.toJson(data)
             jsonFile.writeText(jsonString)
             Log.d("FileWrite", "Successfully wrote JSON to file: $jsonFile")
         } catch (e: IOException) {

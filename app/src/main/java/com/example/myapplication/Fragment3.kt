@@ -55,6 +55,7 @@ class Fragment3 : Fragment() {
         binding.schedule.adapter = adapter
         binding.schedule.layoutManager = LinearLayoutManager(requireContext())
 
+        updatePayment()
         // Observe schedules LiveData
         viewModel.schedules.observe(viewLifecycleOwner) { schedules ->
             updateSchedules()
