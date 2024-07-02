@@ -1,6 +1,7 @@
 package com.example.myapplication
 
 import android.app.AlertDialog
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +16,8 @@ import com.google.gson.Gson
 import android.util.Log
 import android.widget.EditText
 import android.widget.Toast
+import com.google.gson.reflect.TypeToken
+import java.io.File
 
 class CustomAdapter(val peopleList: ArrayList<PeopleData>,private val onItemLongClicked : (Int)->Unit) : RecyclerView.Adapter<CustomAdapter.Holder>() {
     //peopleList의 Size를 return하여 몇 명의 data가 존재하는지 확인
@@ -94,7 +97,8 @@ class Fragment1: Fragment() {
     private fun deleteItem(position: Int) {
         val peopleList = (activity as MainActivity).getPeopleList()
         peopleList.removeAt(position)
-        binding.rv.adapter?.notifyItemRemoved(position)
+        (activity as MainActivity).writeJsonToFile(requireContext(),"PeopleData.json",peopleList)
+        peopleListAdapter.notifyItemRemoved(position)
     }
     //요소 add 관련 함수
     private fun showAddPersonDialog() {
@@ -147,6 +151,7 @@ class Fragment1: Fragment() {
                 //새로운 클래스로 선언하여 arr에 추가
                 val newPerson = PeopleData(name, age, school, subject, phoneNum,hourlyWage, week, hourPerNumber)
                 addPerson(newPerson)
+                (activity as MainActivity).addStudent(requireContext(), "PeopleData.json",newPerson)
                 //dialog 닫기
                 dialog.dismiss()
             }
@@ -162,4 +167,6 @@ class Fragment1: Fragment() {
         peopleListAdapter.notifyItemInserted(peopleList.size - 1)
 
     }
+
+
 }

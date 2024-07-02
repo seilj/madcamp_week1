@@ -9,12 +9,14 @@ import com.example.myapplication.databinding.ActivityMainBinding
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import java.io.File
+import android.content.Context as Context
 
 data class PeopleData(val name: String,val age : Int,  val school:String,  val subject : String, val phoneNum:String, val hourlyWage : Double, val week : String, val hourPerNumber : Double)
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    private val peopleList = ArrayList<PeopleData>()
+    private var peopleList = ArrayList<PeopleData>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,7 +24,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         initView()
-        loadPeopleData()
+        peopleList = readJsonFromFile(this,"PeopleData.json").toMutableList() as ArrayList<PeopleData>
+//        loadPeopleData()
     }
 
     private fun initView() {
@@ -60,5 +63,33 @@ class MainActivity : AppCompatActivity() {
     }
     fun getPeopleList(): ArrayList<PeopleData> {
         return peopleList
+    }
+    fun readJsonFromFile(context: Context, fileName: String): List<PeopleData> {
+        val jsonFile = File(context.filesDir, fileName)
+        if (!jsonFile.exists()) {
+            return emptyList()
+        }
+
+        val json = jsonFile.readText()
+        val gson = Gson()
+        val studentListType = object : TypeToken<List<PeopleData>>() {}.type
+        return gson.fromJson(json, studentListType)
+    }
+
+    fun writeJsonToFile(context: Context, fileName: String, students: List<PeopleData>) {
+        val jsonFile = File(context.filesDir, fileName)
+        val gson = Gson()
+        val jsonString = gson.toJson(students)
+        jsonFile.writeText(jsonString)
+    }
+    fun addStudent(context: Context, fileName: String, student: PeopleData) {
+        // JSON 파일에서 기존 데이터를 읽어옴
+        val students = readJsonFromFile(context, fileName).toMutableList()
+
+        // 새로운 학생 데이터를 추가
+        students.add(student)
+
+        // 업데이트된 데이터를 JSON 파일에 씀
+        writeJsonToFile(context, fileName, students)
     }
 }
