@@ -12,19 +12,20 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myapplication.databinding.Fragment3Binding
 import java.time.LocalDate
-import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
 class Fragment3 : Fragment() {
     private lateinit var binding: Fragment3Binding
-    private val viewModel: ListDataViewModel by viewModels()
+    private val viewModel: ListDataViewModel by activityViewModels()
     private lateinit var totalSalaryTextView: TextView
     private var selectedDate: LocalDate? = null
     private lateinit var calendarView: CalendarView
+    private lateinit var adapter: ScheduleAdapter
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
@@ -40,14 +41,24 @@ class Fragment3 : Fragment() {
             selectedDate = LocalDate.of(year, month + 1, dayOfMonth)
             updateSchedules()
         }
-        // Observe schedules LiveData
-        viewModel.schedules.observe(viewLifecycleOwner) { schedules ->
-            updateRecyclerView(schedules)
-        }
+
+        // 어댑터 초기화 및 RecyclerView 설정
+        adapter = ScheduleAdapter(emptyList(), { schedule ->
+            val updatedSchedules = viewModel.schedules.value?.toMutableList() ?: mutableListOf()
+            updatedSchedules.remove(schedule)
+            viewModel.schedules.value = updatedSchedules
+            updatePayment()
+        }, {
+            showAddClassDialog()
+        })
+
+        binding.schedule.adapter = adapter
+        binding.schedule.layoutManager = LinearLayoutManager(requireContext())
 
         // Observe schedules LiveData
         viewModel.schedules.observe(viewLifecycleOwner) { schedules ->
-            updateRecyclerView(schedules)
+            updateSchedules()
+            updatePayment()
         }
 
         return binding.root
@@ -56,26 +67,13 @@ class Fragment3 : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun updateSchedules() {
         val schedules = viewModel.schedules.value?.filter { it.date == selectedDate }
-        updateRecyclerView(schedules ?: emptyList())
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun updateRecyclerView(schedules: List<Schedule>) {
-        val adapter = ScheduleAdapter(schedules, { schedule ->
-            viewModel.schedules.value?.remove(schedule)
-            updatePayment()
-        }, {
-            showAddClassDialog()
-        })
-
-        binding.schedule.adapter = adapter
-        binding.schedule.layoutManager = LinearLayoutManager(requireContext())
+        adapter.updateData(schedules ?: emptyList())
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun showAddClassDialog() {
-        val studentNames = viewModel.schedules.value?.map { it.name }?.distinct()?.toTypedArray() ?: emptyArray()
-        if(studentNames.isEmpty()) {
+        val studentNames = viewModel.peopleList.value?.map { it.name }?.distinct()?.toTypedArray() ?: emptyArray()
+        if (studentNames.isEmpty()) {
             Toast.makeText(requireContext(), "학생이 존재하지 않습니다.", Toast.LENGTH_SHORT).show()
             return
         }
@@ -92,11 +90,14 @@ class Fragment3 : Fragment() {
             .setView(dialogView)
             .setPositiveButton("추가") { _, _ ->
                 val selectedStudent = studentNames[selectedStudentIndex]
-                val date = selectedDate ?: run{
+                val date = selectedDate ?: run {
                     return@setPositiveButton
                 }
                 val hours = hoursInput.text.toString().toDoubleOrNull() ?: return@setPositiveButton
-                viewModel.schedules.value?.add(Schedule(selectedStudent, hours, date))
+                val newSchedule = Schedule(selectedStudent, hours, date)
+                val updatedSchedules = viewModel.schedules.value?.toMutableList() ?: mutableListOf()
+                updatedSchedules.add(newSchedule)
+                viewModel.schedules.value = updatedSchedules
                 updatePayment()
             }
             .setNegativeButton("취소", null)

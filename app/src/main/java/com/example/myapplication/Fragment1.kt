@@ -102,7 +102,6 @@ class Fragment1 : Fragment() {
         val peopleList = listDataViewModel.getPeopleList()
         val student = peopleList[position]
         listDataViewModel.deleteStudent(requireContext(), student)
-        peopleListAdapter.notifyItemRemoved(position)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -140,7 +139,7 @@ class Fragment1 : Fragment() {
                     Toast.makeText(context, "default value 0 is added", Toast.LENGTH_SHORT).show()
                 }
                 if (hourlyWage == null) {
-                    hourlyWage = 0.0
+                    hourlyWage = 3.0
                     Toast.makeText(context, "default value 0.0 is added", Toast.LENGTH_SHORT).show()
                 }
                 if (hourPerNumber == null) {

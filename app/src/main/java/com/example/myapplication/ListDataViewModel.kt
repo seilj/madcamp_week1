@@ -45,30 +45,30 @@ class ListDataViewModel : ViewModel() {
     @RequiresApi(Build.VERSION_CODES.O)
     fun addStudent(context: Context, student: PeopleData) {
         // 새로운 학생 데이터를 추가
-        peopleList.value?.add(student)
+        val updatedList = peopleList.value ?: mutableListOf()
+        updatedList.add(student)
+        peopleList.value = updatedList
         updateStudentSchedule(student)
         // 업데이트된 데이터를 JSON 파일에 씀
-        writeJsonToFile(context, "PeopleData.json", peopleList.value)
+        writeJsonToFile(context, "PeopleData.json", updatedList)
     }
 
     fun deleteStudent(context: Context, student: PeopleData) {
-        // 새로운 학생 데이터를 추가
-        peopleList.value?.remove(student)
+        // 학생 데이터를 삭제
+        val updatedList = peopleList.value ?: mutableListOf()
+        updatedList.remove(student)
+        peopleList.value = updatedList
         schedules.value = schedules.value?.filterNot { it.name == student.name }?.toMutableList()
         hourlyWage.value = hourlyWage.value?.filterNot { it.first == student.name }?.toMutableList()
         // 업데이트된 데이터를 JSON 파일에 씀
-        writeJsonToFile(context, "PeopleData.json", peopleList.value)
+        writeJsonToFile(context, "PeopleData.json", updatedList)
     }
+
 
     // JSON 파일에 접근해서 값 저장
     private fun loadPeopleData(context: Context) {
-        // Ensure peopleList.value is initialized
-        if (peopleList.value == null) {
-            peopleList.value = mutableListOf()
-        }
-
         val data = readJsonFromFile(context, "PeopleData.json")
-        peopleList.value?.addAll(data)
+        peopleList.value = data.toMutableList()
     }
 
     private fun readJsonFromFile(context: Context, fileName: String): List<PeopleData> {
@@ -107,10 +107,15 @@ class ListDataViewModel : ViewModel() {
             val date = LocalDate.of(yearMonth.year, yearMonth.monthValue, day)
             val formatter = DateTimeFormatter.ofPattern("EEEE")
             val dayOfWeekString = date.format(formatter)
-            if (student.week == dayOfWeekString)
-                schedules.value?.add(Schedule(student.name, student.hourPerNumber, date))
+            if (student.week == dayOfWeekString) {
+                val updatedSchedules = schedules.value ?: mutableListOf()
+                updatedSchedules.add(Schedule(student.name, student.hourPerNumber, date))
+                schedules.value = updatedSchedules
+            }
         }
 
-        hourlyWage.value?.add(Pair(student.name, student.hourlyWage))
+        val updatedWages = hourlyWage.value ?: mutableListOf()
+        updatedWages.add(Pair(student.name, student.hourlyWage))
+        hourlyWage.value = updatedWages
     }
 }
