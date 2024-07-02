@@ -62,7 +62,6 @@ class Fragment3 : Fragment() {
     private fun updateRecyclerView(schedules: List<Schedule>) {
         val adapter = ScheduleAdapter(schedules, { schedule ->
             viewModel.schedules.value?.remove(schedule)
-            viewModel.schedules.value = viewModel.schedules.value
             updatePayment()
         }, {
             showAddClassDialog()
@@ -93,7 +92,6 @@ class Fragment3 : Fragment() {
                 }
                 val hours = hoursInput.text.toString().toDoubleOrNull() ?: return@setPositiveButton
                 viewModel.schedules.value?.add(Schedule(selectedStudent, hours, date))
-                updateSchedules()
                 updatePayment()
             }
             .setNegativeButton("취소", null)
