@@ -13,7 +13,8 @@
         android:layout_height="65dp"
         android:layout_gravity="top|center_horizontal"
         android:layout_marginBottom="30dp"
-        android:text="select image" />
+        android:text="select image"
+        android:fontFamily="@font/godom"/>
 
         <EditText
             android:id="@+id/edit_text"
@@ -21,6 +22,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
             android:hint="Text"
-            android:textSize="20sp" />
+            android:textSize="20sp"
+            android:fontFamily="@font/godom"/>
     </LinearLayout>
 

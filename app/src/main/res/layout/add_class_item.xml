@@ -13,5 +13,6 @@
         android:id="@+id/add_class_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="보강" />
+        android:text="보강"
+        android:fontFamily="@font/godom"/>
 </androidx.cardview.widget.CardView>

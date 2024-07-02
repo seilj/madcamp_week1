@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:paddingHorizontal="20dp"
     android:paddingVertical="10dp"
+    android:background="@drawable/round_border"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <ImageView
@@ -27,6 +28,8 @@
         android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/gv_img"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:fontFamily="@font/godom"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

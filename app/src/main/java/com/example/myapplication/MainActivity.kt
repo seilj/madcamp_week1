@@ -42,15 +42,15 @@ class MainActivity : AppCompatActivity() {
         viewPager.adapter = ViewPagerAdapter(fragmentList, this)
 
         val iconList = ArrayList<Drawable?>()
-        iconList.add(ContextCompat.getDrawable(this, R.drawable.ic_launcher_foreground))
-        iconList.add(ContextCompat.getDrawable(this, R.drawable.ic_launcher_foreground))
-        iconList.add(ContextCompat.getDrawable(this, R.drawable.ic_launcher_foreground))
+        iconList.add(ContextCompat.getDrawable(this, R.drawable.list))
+        iconList.add(ContextCompat.getDrawable(this, R.drawable.imagegallery))
+        iconList.add(ContextCompat.getDrawable(this, R.drawable.calendar))
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = when(position){
                 0 -> "학생목록"
                 1 -> "필기노트"
-                else -> "과외비계산기"
+                else -> "일정관리"
             }
             tab.icon = iconList[position]
         }.attach()
