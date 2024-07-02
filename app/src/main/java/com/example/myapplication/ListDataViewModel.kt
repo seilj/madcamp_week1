@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File
+import java.io.IOException
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
@@ -60,10 +61,7 @@ class ListDataViewModel : ViewModel() {
 
     // JSON 파일에 접근해서 값 저장
     private fun loadPeopleData(context: Context) {
-        val json = context.assets.open("PeopleData.json").bufferedReader().use { it.readText() }
-        val gson = Gson()
-        val listType = object : TypeToken<ArrayList<PeopleData>>() {}.type
-        val data = gson.fromJson<ArrayList<PeopleData>>(json, listType)
+        val data = readJsonFromFile(context, "PeopleData.json")
         peopleList.value?.addAll(data)
     }
 
@@ -72,18 +70,26 @@ class ListDataViewModel : ViewModel() {
         if (!jsonFile.exists()) {
             return emptyList()
         }
-
-        val json = jsonFile.readText()
-        val gson = Gson()
-        val studentListType = object : TypeToken<List<PeopleData>>() {}.type
-        return gson.fromJson(json, studentListType)
+        return try {
+            val json = jsonFile.readText()
+            val gson = Gson()
+            val studentListType = object : TypeToken<List<PeopleData>>() {}.type
+            gson.fromJson(json, studentListType)
+        } catch (e: IOException) {
+            e.printStackTrace()
+            emptyList()
+        }
     }
 
     private fun writeJsonToFile(context: Context, fileName: String, students: MutableList<PeopleData>?) {
         val jsonFile = File(context.filesDir, fileName)
-        val gson = Gson()
-        val jsonString = gson.toJson(students)
-        jsonFile.writeText(jsonString)
+        try {
+            val gson = Gson()
+            val jsonString = gson.toJson(students)
+            jsonFile.writeText(jsonString)
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

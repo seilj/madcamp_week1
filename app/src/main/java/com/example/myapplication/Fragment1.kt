@@ -2,6 +2,7 @@ package com.example.myapplication
 
 import android.app.AlertDialog
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +17,7 @@ import com.google.gson.Gson
 import android.util.Log
 import android.widget.EditText
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.viewModels
 import com.google.gson.reflect.TypeToken
 import java.io.File
@@ -62,6 +64,7 @@ class Fragment1: Fragment() {
     private val viewModel: ListDataViewModel by viewModels()
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -105,6 +108,7 @@ class Fragment1: Fragment() {
             .show()
     }
     //요소 add 관련 함수
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun showAddPersonDialog() {
         //view라는 변수에 dialog_add_person.xml 파일을 담는 과정
         //layoutInflater를 통해 xml을 앱에서 사용할 수 있는 뷰 객체로 변환
