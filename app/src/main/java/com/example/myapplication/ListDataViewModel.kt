@@ -143,8 +143,8 @@ class ListDataViewModel : ViewModel() {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun updateStudentSchedule(student: PeopleData){
-        Log.d("Basycsyntax","update Student Schedule")
+    private fun updateStudentSchedule(student: PeopleData) {
+        Log.d("Basycsyntax", "update Student Schedule")
         val yearMonth = YearMonth.now()
         val daysInMonth = yearMonth.lengthOfMonth()
         for (day in 1..daysInMonth) {
@@ -153,7 +153,7 @@ class ListDataViewModel : ViewModel() {
             val dayOfWeekString = date.format(formatter)
             Log.d("Basycsyntax", "day of week: $dayOfWeekString")
             if (student.week == dayOfWeekString) {
-                Log.d("Basycsyntax","add regular schedule")
+                Log.d("Basycsyntax", "add regular schedule")
                 val updatedSchedules = schedules.value ?: mutableListOf()
                 updatedSchedules.add(Schedule(student.name, student.hourPerNumber, date))
                 schedules.value = updatedSchedules
@@ -163,5 +163,44 @@ class ListDataViewModel : ViewModel() {
         val updatedWages = hourlyWage.value ?: mutableListOf()
         updatedWages.add(Pair(student.name, student.hourlyWage))
         hourlyWage.value = updatedWages
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun updateStudent(context: Context, updatedStudent: PeopleData, position: Int) {
+        val peopleList = peopleList.value ?: mutableListOf()
+        if (position >= 0 && position < peopleList.size) {
+            val oldStudent = peopleList[position]
+            peopleList[position] = updatedStudent
+            this.peopleList.value = peopleList
+
+            // 기존 스케줄에서 이름이 같은 항목을 업데이트된 정보로 변경
+            schedules.value = schedules.value?.map {
+                if (it.name == oldStudent.name) {
+                    Schedule(updatedStudent.name, updatedStudent.hourPerNumber, it.date)
+                } else {
+                    it
+                }
+            }?.toMutableList() ?: mutableListOf()
+
+            // 시급 정보 업데이트
+            hourlyWage.value = hourlyWage.value?.map {
+                if (it.first == oldStudent.name) {
+                    Pair(updatedStudent.name, updatedStudent.hourlyWage)
+                } else {
+                    it
+                }
+            }?.toMutableList() ?: mutableListOf()
+
+            // 업데이트된 데이터를 JSON 파일에 씀
+            writeJsonToFile(context, "PeopleData.json", peopleList)
+            writeSchedulesToFile(context)
+
+            // 요일이 변경되었을 때 스케줄 업데이트
+            if (oldStudent.week != updatedStudent.week) {
+                schedules.value = schedules.value?.filterNot { it.name == updatedStudent.name }?.toMutableList() ?: mutableListOf()
+                updateStudentSchedule(updatedStudent)
+                writeSchedulesToFile(context)
+            }
+        }
     }
 }
