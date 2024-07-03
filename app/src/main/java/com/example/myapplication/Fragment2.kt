@@ -18,15 +18,21 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import com.example.myapplication.databinding.Fragment2Binding
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import java.io.File
-import java.io.FileOutputStream
+import java.io.FileWriter
 import java.io.IOException
-import java.io.InputStream
-import java.util.UUID
+import java.lang.reflect.Type
 
+data class ImageData(
+    val path: String,
+    val text: String
+)
 
 class Fragment2: Fragment() {
     private lateinit var binding: Fragment2Binding
+    private var imageDatas = mutableListOf<ImageData>()
     //selectedImageUri에 디바이스에서 가져온 사진의 Uri가 담는 변수 기본적으로 null값이 할당되어 있어 null가 감지되면 toast 메시지를 출력한다.
     private var selectedImageUri: Uri? = null
     //이미지 선택을 실행
@@ -44,7 +50,11 @@ class Fragment2: Fragment() {
         binding = Fragment2Binding.inflate(inflater, container, false)
 
         ImageResources.clearImages()
-        loadSavedImages()
+        imageDatas = loadImagesFromJsonFile()
+        imageDatas.forEach { imageData ->
+            ImageResources.addImage(Uri.parse(imageData.path), imageData.text)
+        }
+
         //사진들을 화면에 보여주기 위한 gridviewadapter이다
         val gridviewAdapter = GridViewAdapter(requireContext(), ImageResources.images, ImageResources.texts)
 
@@ -106,13 +116,11 @@ class Fragment2: Fragment() {
                 val text = textInput.text.toString()
 
                 if (selectedImageUri != null && text.isNotEmpty()) {
-                    val filePath = saveImageToInternalStorage(selectedImageUri!!, text)
-                    if (filePath != null) {
-                        ImageResources.addImage(Uri.fromFile(File(filePath)), text)
-                        gridViewAdapter.notifyDataSetChanged()
-                    } else {
-                        Toast.makeText(requireContext(), "Failed to save image", Toast.LENGTH_LONG).show()
-                    }
+                    val imageData = ImageData(selectedImageUri!!.toString(), text)
+                    imageDatas.add(imageData)
+                    saveImagesToJsonFile(imageDatas)
+                    ImageResources.addImage(selectedImageUri!!, text)
+                    gridViewAdapter.notifyDataSetChanged()
                 } else {
                     Toast.makeText(requireContext(), "Image or text is missing", Toast.LENGTH_LONG).show()
                 }
@@ -130,65 +138,56 @@ class Fragment2: Fragment() {
             .setTitle("Delete Image")
             .setMessage("Are you sure you want to delete this image?")
             .setPositiveButton("Yes") { _, _ ->
-                deleteImage(imageName)
-                ImageResources.removeImage(imageUri, imageName)
-                gridViewAdapter.notifyDataSetChanged()
+                val imageData = imageDatas.find{it.path == imageUri.toString()}
+                if(imageData != null){
+                    imageDatas.remove(imageData)
+                    saveImagesToJsonFile(imageDatas)
+                    ImageResources.removeImage(imageUri, imageName)
+                    gridViewAdapter.notifyDataSetChanged()
+                }
+                else{
+                    Toast.makeText(requireContext(), "Image not found", Toast.LENGTH_SHORT).show()
+                }
             }
             .setNegativeButton("No") { dialog, _ -> dialog.cancel() }
             .create()
             .show()
     }
 
-    private fun getImageDirectory(): File {
-        val directory = File(requireContext().filesDir, "images")
-        if (!directory.exists()) {
-            directory.mkdirs()
-        }
-        return directory
-    }
-
-    private fun saveImageToInternalStorage(uri: Uri, name:String): String? {
-        val contentResolver: ContentResolver = requireContext().contentResolver
-        val directory: File = getImageDirectory()
-        val fileName = "${name}.jpg"
-        val file = File(directory, fileName)
-
-        try {
-            val inputStream: InputStream? = contentResolver.openInputStream(uri)
-            val outputStream = FileOutputStream(file)
-            inputStream?.copyTo(outputStream)
-            inputStream?.close()
-            outputStream.close()
-            return file.absolutePath
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-        return null
-    }
-
-    private fun deleteImage(imageName: String) {
-        val imageFile = File(requireContext().filesDir, "images/${imageName}.jpg")
-        if (imageFile.exists()) {
+    private fun getImagesJsonFile(): File {
+        val file = File(requireContext().filesDir, "images.json")
+        if (!file.exists()) {
             try {
-                imageFile.delete()
-                Toast.makeText(requireContext(), "Image deleted successfully", Toast.LENGTH_SHORT).show()
+                // 파일이 없으면 새로 생성합니다.
+                file.createNewFile()
             } catch (e: IOException) {
-                Toast.makeText(requireContext(), "Error deleting image", Toast.LENGTH_SHORT).show()
+                e.printStackTrace()
             }
-        } else {
-            Toast.makeText(requireContext(), "Image not found", Toast.LENGTH_SHORT).show()
+        }
+        return file
+    }
+
+    private fun saveImagesToJsonFile(images: List<ImageData>) {
+        val gson = Gson()
+        val json = gson.toJson(images)
+        val file = getImagesJsonFile()
+        FileWriter(file).use { writer ->
+            writer.write(json)
         }
     }
 
-    private fun loadSavedImages() {
-        val directory = getImageDirectory()
-        val files = directory.listFiles()
-        if (files != null) {
-            for (file in files) {
-                if (file.isFile) {
-                    ImageResources.addImage(Uri.fromFile(file), file.nameWithoutExtension)
-                }
-            }
+    private fun loadImagesFromJsonFile(): MutableList<ImageData> {
+        val file = getImagesJsonFile()
+        if (!file.exists()) {
+            return emptyList<ImageData>().toMutableList()
+        }
+
+        val gson = Gson()
+        val type: Type = object : TypeToken<List<ImageData>>() {}.type
+        return try {
+            gson.fromJson<List<ImageData>?>(file.readText(), type).toMutableList()
+        } catch (e: Exception) {
+            emptyList<ImageData>().toMutableList()
         }
     }
 
