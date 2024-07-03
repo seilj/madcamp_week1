@@ -3,6 +3,7 @@ package com.example.myapplication
 import android.app.Activity
 import android.app.ActivityOptions
 import android.app.AlertDialog
+import android.content.ContentResolver
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -17,6 +18,11 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import com.example.myapplication.databinding.Fragment2Binding
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.InputStream
+import java.util.UUID
 
 
 class Fragment2: Fragment() {
@@ -36,11 +42,23 @@ class Fragment2: Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = Fragment2Binding.inflate(inflater, container, false)
+
+        ImageResources.clearImages()
+        loadSavedImages()
         //사진들을 화면에 보여주기 위한 gridviewadapter이다
         val gridviewAdapter = GridViewAdapter(requireContext(), ImageResources.images, ImageResources.texts)
 
         //어뎁터 고정
         binding.gridview.adapter = gridviewAdapter
+
+        binding.gridview.setOnItemLongClickListener { parent, view, position, id ->
+            val imageUri = ImageResources.images[position]
+            val imageName = ImageResources.texts[position]
+
+            showDeleteConfirmationDialog(imageUri, imageName, gridviewAdapter)
+            true
+        }
+
         //고정한 +버튼 눌렷을 사
         binding.imageAddition.setOnClickListener {
             // 새로운 데이터 추가
@@ -88,15 +106,16 @@ class Fragment2: Fragment() {
                 val text = textInput.text.toString()
 
                 if (selectedImageUri != null && text.isNotEmpty()) {
-                    ImageResources.addImage(selectedImageUri!!,text)
-                    gridViewAdapter.notifyDataSetChanged()
-
-
-
+                    val filePath = saveImageToInternalStorage(selectedImageUri!!, text)
+                    if (filePath != null) {
+                        ImageResources.addImage(Uri.fromFile(File(filePath)), text)
+                        gridViewAdapter.notifyDataSetChanged()
+                    } else {
+                        Toast.makeText(requireContext(), "Failed to save image", Toast.LENGTH_LONG).show()
+                    }
                 } else {
-                    Toast.makeText(requireContext(), "Image or text is missing",Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(), "Image or text is missing", Toast.LENGTH_LONG).show()
                 }
-                //dialog 닫기
                 dialog.dismiss()
             }
             //cancel누르면 닫는 로직
@@ -106,5 +125,71 @@ class Fragment2: Fragment() {
             .show()
     }
 
+    private fun showDeleteConfirmationDialog(imageUri: Uri, imageName: String, gridViewAdapter: GridViewAdapter) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Delete Image")
+            .setMessage("Are you sure you want to delete this image?")
+            .setPositiveButton("Yes") { _, _ ->
+                deleteImage(imageName)
+                ImageResources.removeImage(imageUri, imageName)
+                gridViewAdapter.notifyDataSetChanged()
+            }
+            .setNegativeButton("No") { dialog, _ -> dialog.cancel() }
+            .create()
+            .show()
+    }
+
+    private fun getImageDirectory(): File {
+        val directory = File(requireContext().filesDir, "images")
+        if (!directory.exists()) {
+            directory.mkdirs()
+        }
+        return directory
+    }
+
+    private fun saveImageToInternalStorage(uri: Uri, name:String): String? {
+        val contentResolver: ContentResolver = requireContext().contentResolver
+        val directory: File = getImageDirectory()
+        val fileName = "${name}.jpg"
+        val file = File(directory, fileName)
+
+        try {
+            val inputStream: InputStream? = contentResolver.openInputStream(uri)
+            val outputStream = FileOutputStream(file)
+            inputStream?.copyTo(outputStream)
+            inputStream?.close()
+            outputStream.close()
+            return file.absolutePath
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        return null
+    }
+
+    private fun deleteImage(imageName: String) {
+        val imageFile = File(requireContext().filesDir, "images/${imageName}.jpg")
+        if (imageFile.exists()) {
+            try {
+                imageFile.delete()
+                Toast.makeText(requireContext(), "Image deleted successfully", Toast.LENGTH_SHORT).show()
+            } catch (e: IOException) {
+                Toast.makeText(requireContext(), "Error deleting image", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            Toast.makeText(requireContext(), "Image not found", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun loadSavedImages() {
+        val directory = getImageDirectory()
+        val files = directory.listFiles()
+        if (files != null) {
+            for (file in files) {
+                if (file.isFile) {
+                    ImageResources.addImage(Uri.fromFile(file), file.nameWithoutExtension)
+                }
+            }
+        }
+    }
 
 }
