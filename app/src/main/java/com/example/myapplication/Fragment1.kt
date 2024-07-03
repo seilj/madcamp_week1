@@ -47,6 +47,9 @@ class CustomAdapter(private var peopleList: MutableList<PeopleData>, private val
             binding.rvSchool.text = "학교 : ${item.school}"
             binding.rvSubject.text = "과목 : ${item.subject}"
             binding.rvPhonenum.text = "전화번호 : ${item.phoneNum}"
+            binding.rvHourlywage.text = "학교 : ${item.hourlyWage}"
+            binding.rvWeek.text = "과목 : ${item.week}"
+            binding.rvHourpernumber.text = "전화번호 : ${item.hourPerNumber}"
         }
     }
 
@@ -84,17 +87,17 @@ class Fragment1 : Fragment() {
     private fun setupRecyclerView() {
         val peopleList = listDataViewModel.getPeopleList()
         peopleListAdapter = CustomAdapter(peopleList) { position ->
-            showDeleteDialog(position)
+            showDeleteDialog(position,peopleList[position].name)
         }
         binding.rv.adapter = peopleListAdapter
         binding.rv.layoutManager = LinearLayoutManager(context)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun showDeleteDialog(position: Int) {
+    private fun showDeleteDialog(position: Int, studentName:String) {
         AlertDialog.Builder(requireContext())
-            .setTitle("Delete Entry")
-            .setMessage("Are you sure you want to delete this entry?")
+            .setTitle("학생 삭제")
+            .setMessage("$studentName 학생을 지우시겠습니까?")
             .setPositiveButton("OK") { dialog, _ ->
                 deleteItem(position)
                 dialog.dismiss()
@@ -130,11 +133,17 @@ class Fragment1 : Fragment() {
         setupEditTextFocusChange(phoneNumInput, hourlyWageInput)
         setupEditTextFocusChange(hourlyWageInput, hourPerNumberInput)
 
-        AlertDialog.Builder(requireContext())
-            .setTitle("Add New Person")
-            .setView(view)
-            .setPositiveButton("Add") { dialog, _ ->
 
+        val dialog = AlertDialog.Builder(requireContext())
+            .setTitle("새 학생 추가")
+            .setView(view)
+            .setPositiveButton("Add", null)
+            .setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
+            .create()
+
+        dialog.setOnShowListener {
+            val addButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            addButton.setOnClickListener {
                 val name = nameInput.text.toString()
                 var age = ageInput.text.toString().toIntOrNull()
                 val school = schoolInput.text.toString()
@@ -143,31 +152,35 @@ class Fragment1 : Fragment() {
                 var hourlyWage = hourlyWageInput.text.toString().toDoubleOrNull()
                 val week = weekSpinner.selectedItem.toString()
                 var hourPerNumber = hourPerNumberInput.text.toString().toDoubleOrNull()
-                if (name == "") {
+
+                if (name.isEmpty()) {
                     Toast.makeText(context, "이름을 입력해주세요", Toast.LENGTH_SHORT).show()
-                    return@setPositiveButton
+                    return@setOnClickListener
                 }
                 if (age == null) {
                     age = 10
-                    Toast.makeText(context, "default value 10 is added", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "기본 나이 10 설정", Toast.LENGTH_SHORT).show()
                 }
                 if (hourlyWage == null) {
                     hourlyWage = 3.0
-                    Toast.makeText(context, "default value 3.0 is added", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "기본 시급 3 설정", Toast.LENGTH_SHORT).show()
                 }
                 if (hourPerNumber == null) {
                     hourPerNumber = 2.0
-                    Toast.makeText(context, "default value 2.0 is added", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "기본 시간 2 설정", Toast.LENGTH_SHORT).show()
                 }
 
                 val newPerson = PeopleData(name, age, school, subject, phoneNum, hourlyWage, week, hourPerNumber)
                 listDataViewModel.addStudent(requireContext(), newPerson)
                 dialog.dismiss()
             }
-            .setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
-            .create()
-            .show()
+        }
+
+        dialog.show()
     }
+
+
+
     private fun setupEditTextFocusChange(currentEditText: EditText, nextEditText: EditText) {
         currentEditText.setOnEditorActionListener { _, actionId, event ->
             if (actionId == EditorInfo.IME_ACTION_NEXT || event?.keyCode == KeyEvent.KEYCODE_ENTER) {
