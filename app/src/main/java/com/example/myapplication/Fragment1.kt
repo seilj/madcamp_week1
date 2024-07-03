@@ -172,6 +172,11 @@ class Fragment1 : Fragment() {
                     Toast.makeText(context, "이름을 입력해주세요", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
+                val existingPerson = listDataViewModel.getPeopleList().find { it.name == name }
+                if (existingPerson != null) {
+                    Toast.makeText(context, "이미 같은 이름의 학생이 존재합니다.", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
                 if (age == null) {
                     age = 10
                     Toast.makeText(context, "기본 나이 10 설정", Toast.LENGTH_SHORT).show()
@@ -248,6 +253,11 @@ class Fragment1 : Fragment() {
                     Toast.makeText(context, "이름을 입력해주세요", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
+                val existingPerson = listDataViewModel.getPeopleList().find { it.name == name && it != person }
+                if (existingPerson != null) {
+                    Toast.makeText(context, "이미 같은 이름의 학생이 존재합니다.", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
                 if (age == null) {
                     age = 10
                     Toast.makeText(context, "기본 나이 10 설정", Toast.LENGTH_SHORT).show()
@@ -269,8 +279,6 @@ class Fragment1 : Fragment() {
 
         dialog.show()
     }
-
-
 
     private fun setupEditTextFocusChange(currentEditText: EditText, nextEditText: EditText) {
         currentEditText.setOnEditorActionListener { _, actionId, event ->
