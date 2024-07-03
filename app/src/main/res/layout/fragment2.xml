@@ -28,5 +28,17 @@
         android:padding="10dp"
         android:alpha="1.0"
         android:src="@drawable/image" />
+    <ImageButton
+        android:id="@+id/photoAddition"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="right|bottom"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="90dp"
+        android:background="@drawable/circle_background"
+        android:scaleType="centerInside"
+        android:padding="10dp"
+        android:alpha="1.0"
+        android:src="@drawable/add_photo" />
 
 </FrameLayout>

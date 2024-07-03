@@ -74,6 +74,9 @@ class Fragment2: Fragment() {
             // 새로운 데이터 추가
             showAddImageDialog(gridviewAdapter)
         }
+        binding.photoAddition.setOnClickListener(){
+            //요기다가 함수넣으면 됨
+        }
         //각 그리드뷰가 터치되면?
         binding.gridview.onItemClickListener = AdapterView.OnItemClickListener { _, view, position, _ ->
             //터치 이벤트 실행
