@@ -3,10 +3,16 @@ package com.example.myapplication
 import android.app.Activity
 import android.app.ActivityOptions
 import android.app.AlertDialog
-import android.content.ContentResolver
+import android.Manifest
+import android.content.ContentValues
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +22,9 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import com.example.myapplication.databinding.Fragment2Binding
 import com.google.gson.Gson
@@ -24,6 +33,8 @@ import java.io.File
 import java.io.FileWriter
 import java.io.IOException
 import java.lang.reflect.Type
+import java.text.SimpleDateFormat
+import java.util.Date
 
 data class ImageData(
     val path: String,
@@ -41,7 +52,32 @@ class Fragment2: Fragment() {
             selectedImageUri = it.data?.data  // 이미지 URI를 가져옵니다.
         }
     }
+    private lateinit var currentPhotoPath: String
 
+    private val cameraLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        if (it.resultCode == Activity.RESULT_OK) {
+            selectedImageUri?.let { uri ->
+                // Photo captured, show dialog to enter text and add to grid view
+                showAddImageDialog(binding.gridview.adapter as GridViewAdapter)
+            }
+        } else {
+            Log.e("Fragment2", "Camera result not OK, resultCode: ${it.resultCode}")
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        if (permissions[Manifest.permission.CAMERA] == true &&
+            permissions[Manifest.permission.READ_MEDIA_IMAGES] == true) {
+            dispatchTakePictureIntent()
+        } else {
+            Toast.makeText(requireContext(), "Camera or storage permission denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -75,7 +111,7 @@ class Fragment2: Fragment() {
             showAddImageDialog(gridviewAdapter)
         }
         binding.photoAddition.setOnClickListener(){
-            //요기다가 함수넣으면 됨
+            requestPermissions()
         }
         //각 그리드뷰가 터치되면?
         binding.gridview.onItemClickListener = AdapterView.OnItemClickListener { _, view, position, _ ->
@@ -109,13 +145,10 @@ class Fragment2: Fragment() {
             imagePickerLauncher.launch(photoPickerIntent)
         }
         //제목과 add cancel 버튼의 역할 지정
-        AlertDialog .Builder(requireContext())
+        AlertDialog.Builder(requireContext())
             .setTitle("Add New Image")
             .setView(view)
-
             .setPositiveButton("Add") { dialog, _ ->
-                //edittext에 있는 글자를 변환하여 저장하는 역할을 한다.
-                //둘 중 하나라도 null이면 toast 메시지가 올라가며 업로드가 안되고 창이 닫힌다
                 val text = textInput.text.toString()
 
                 if (selectedImageUri != null && text.isNotEmpty()) {
@@ -135,6 +168,52 @@ class Fragment2: Fragment() {
             .create()
             .show()
     }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private fun requestPermissions() {
+        requestPermissionLauncher.launch(
+            arrayOf(
+                Manifest.permission.CAMERA,
+                Manifest.permission.READ_MEDIA_IMAGES
+            )
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private fun dispatchTakePictureIntent() {
+        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        if (takePictureIntent.resolveActivity(requireActivity().packageManager) != null) {
+            val photoUri = createImageUri()
+            if (photoUri != null) {
+                // Pass URI to the camera intent
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
+                selectedImageUri = photoUri // Set selectedImageUri here
+                cameraLauncher.launch(takePictureIntent)
+            } else {
+                Toast.makeText(requireContext(), "Unable to create image URI", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private fun createImageUri(): Uri? {
+        val contentValues = ContentValues().apply {
+            put(MediaStore.Images.Media.DISPLAY_NAME, "photo_${System.currentTimeMillis()}.jpg")
+            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+        }
+        return requireContext().contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+    }
+
+
+
+    private val createWriteRequestLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            // Handle successful write request
+        } else {
+            Toast.makeText(requireContext(), "Write permission denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
     private fun showDeleteConfirmationDialog(imageUri: Uri, imageName: String, gridViewAdapter: GridViewAdapter) {
         AlertDialog.Builder(requireContext())
