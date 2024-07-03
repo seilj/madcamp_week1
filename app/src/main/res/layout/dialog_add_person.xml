@@ -66,14 +66,15 @@
             android:textSize="20sp"
             android:fontFamily="@font/godom"/>
 
-        <EditText
-            android:id="@+id/edit_week"
+        <Spinner
+            android:id="@+id/spinner_week"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
-            android:hint="Week"
-            android:textSize="20sp"
-            android:fontFamily="@font/godom"/>
+            android:spinnerMode="dropdown"
+            android:entries="@array/days_of_week"
+            android:layout_marginTop="10dp" />
+
 
         <EditText
             android:id="@+id/edit_hourPerNumber"

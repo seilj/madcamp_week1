@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myapplication.databinding.Fragment1Binding
 import com.example.myapplication.databinding.ItemRecyclerviewBinding
 import android.widget.EditText
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.RecyclerView
@@ -119,7 +120,7 @@ class Fragment1 : Fragment() {
         val subjectInput = view.findViewById<EditText>(R.id.edit_subject)
         val phoneNumInput = view.findViewById<EditText>(R.id.edit_phoneNum)
         val hourlyWageInput = view.findViewById<EditText>(R.id.edit_hourlyWage)
-        val weekInput = view.findViewById<EditText>(R.id.edit_week)
+        val weekSpinner = view.findViewById<Spinner>(R.id.spinner_week)
         val hourPerNumberInput = view.findViewById<EditText>(R.id.edit_hourPerNumber)
 
         setupEditTextFocusChange(nameInput, ageInput)
@@ -127,16 +128,13 @@ class Fragment1 : Fragment() {
         setupEditTextFocusChange(schoolInput, subjectInput)
         setupEditTextFocusChange(subjectInput, phoneNumInput)
         setupEditTextFocusChange(phoneNumInput, hourlyWageInput)
-        setupEditTextFocusChange(hourlyWageInput, weekInput)
-        setupEditTextFocusChange(weekInput, hourPerNumberInput)
+        setupEditTextFocusChange(hourlyWageInput, hourPerNumberInput)
+
 
         AlertDialog.Builder(requireContext())
             .setTitle("Add New Person")
             .setView(view)
             .setPositiveButton("Add") { dialog, _ ->
-                val daysOfWeek: List<String> = listOf(
-                    "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
-                )
 
                 val name = nameInput.text.toString()
                 var age = ageInput.text.toString().toIntOrNull()
@@ -144,7 +142,7 @@ class Fragment1 : Fragment() {
                 val subject = subjectInput.text.toString()
                 val phoneNum = phoneNumInput.text.toString()
                 var hourlyWage = hourlyWageInput.text.toString().toDoubleOrNull()
-                var week = weekInput.text.toString()
+                val week = weekSpinner.selectedItem.toString()
                 var hourPerNumber = hourPerNumberInput.text.toString().toDoubleOrNull()
 
                 if (age == null) {
@@ -153,15 +151,11 @@ class Fragment1 : Fragment() {
                 }
                 if (hourlyWage == null) {
                     hourlyWage = 3.0
-                    Toast.makeText(context, "default value 0.0 is added", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "default value 3.0 is added", Toast.LENGTH_SHORT).show()
                 }
                 if (hourPerNumber == null) {
                     hourPerNumber = 2.0
                     Toast.makeText(context, "default value 2.0 is added", Toast.LENGTH_SHORT).show()
-                }
-                if (!(week in daysOfWeek)) {
-                    week = "Monday"
-                    Toast.makeText(context, "default value Monday is added, please change the first letter to capital letters ", Toast.LENGTH_SHORT).show()
                 }
 
                 val newPerson = PeopleData(name, age, school, subject, phoneNum, hourlyWage, week, hourPerNumber)
