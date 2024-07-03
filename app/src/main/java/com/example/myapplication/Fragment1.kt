@@ -135,7 +135,7 @@ class Fragment1 : Fragment() {
             .setView(view)
             .setPositiveButton("Add") { dialog, _ ->
                 val daysOfWeek: List<String> = listOf(
-                    "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+                    "월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"
                 )
 
                 val name = nameInput.text.toString()
@@ -146,21 +146,24 @@ class Fragment1 : Fragment() {
                 var hourlyWage = hourlyWageInput.text.toString().toDoubleOrNull()
                 var week = weekInput.text.toString()
                 var hourPerNumber = hourPerNumberInput.text.toString().toDoubleOrNull()
-
+                if (name == "") {
+                    Toast.makeText(context, "이름을 입력해주세요", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
                 if (age == null) {
-                    age = 0
-                    Toast.makeText(context, "default value 0 is added", Toast.LENGTH_SHORT).show()
+                    age = 10
+                    Toast.makeText(context, "default value 10 is added", Toast.LENGTH_SHORT).show()
                 }
                 if (hourlyWage == null) {
                     hourlyWage = 3.0
-                    Toast.makeText(context, "default value 0.0 is added", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "default value 3.0 is added", Toast.LENGTH_SHORT).show()
                 }
                 if (hourPerNumber == null) {
                     hourPerNumber = 2.0
                     Toast.makeText(context, "default value 2.0 is added", Toast.LENGTH_SHORT).show()
                 }
                 if (!(week in daysOfWeek)) {
-                    week = "Monday"
+                    week = "월요일"
                     Toast.makeText(context, "default value Monday is added, please change the first letter to capital letters ", Toast.LENGTH_SHORT).show()
                 }
 
