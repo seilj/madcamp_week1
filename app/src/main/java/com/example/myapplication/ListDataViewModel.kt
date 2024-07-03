@@ -144,13 +144,16 @@ class ListDataViewModel : ViewModel() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun updateStudentSchedule(student: PeopleData){
+        Log.d("Basycsyntax","update Student Schedule")
         val yearMonth = YearMonth.now()
         val daysInMonth = yearMonth.lengthOfMonth()
         for (day in 1..daysInMonth) {
             val date = LocalDate.of(yearMonth.year, yearMonth.monthValue, day)
             val formatter = DateTimeFormatter.ofPattern("EEEE")
             val dayOfWeekString = date.format(formatter)
+            Log.d("Basycsyntax", "day of week: $dayOfWeekString")
             if (student.week == dayOfWeekString) {
+                Log.d("Basycsyntax","add regular schedule")
                 val updatedSchedules = schedules.value ?: mutableListOf()
                 updatedSchedules.add(Schedule(student.name, student.hourPerNumber, date))
                 schedules.value = updatedSchedules
